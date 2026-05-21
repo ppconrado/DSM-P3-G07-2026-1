@@ -1,0 +1,198 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ============================================================================
+// Enums - Valores tipados para o sistema
+// ============================================================================
+
+enum UserRole {
+  ADMIN
+  PARTICIPANTE
+}
+
+enum RegistrationStatus {
+  ATIVO
+  CANCELADO
+  CONCLUIDO
+}
+
+enum EventStatus {
+  CRIANDO
+  ATIVA
+  ENCERRADA
+  CANCELADA
+}
+
+// ============================================================================
+// Models - Entidades do sistema
+// ============================================================================
+
+/// Usuários do sistema - Admins e Participantes
+model User {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String   @db.String
+  email        String   @unique @db.String
+  passwordHash String   @db.String
+  phone        String?  @db.String
+  role         UserRole @default(PARTICIPANTE)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relações
+  createdEvents      Event[]
+  registrations      Registration[] @relation("ParticipantRegistrations")
+  markedAttendances  Attendance[]   @relation("MarkedByAdmin")
+  issuedCertificates Certificate[]
+
+  @@index([role])
+  @@index([isActive])
+}
+
+/// Palestrantes
+model Speaker {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @db.String
+  email       String   @unique @db.String
+  bio         String?  @db.String
+  institution String?  @db.String
+  phone       String?  @db.String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relações
+  eventIds String[] @db.ObjectId
+  // Associação com eventos via array de IDs (representa N:N no UML).
+  // Navegação deve ser feita manualmente usando `eventIds`.
+}
+
+/// Eventos/Palestras/Cursos
+model Event {
+  id                         String      @id @default(auto()) @map("_id") @db.ObjectId
+  title                      String      @unique @db.String
+  description                String?     @db.String
+  startDate                  DateTime    @db.Date
+  endDate                    DateTime    @db.Date
+  location                   String      @db.String
+  type                       String      @db.String // ex: "Palestra", "Workshop", "Curso"
+  capacity                   Int         @db.Int
+  certificateRequiredPercent Int         @default(75)
+  status                     EventStatus @default(CRIANDO)
+  createdByAdminId           String      @db.ObjectId
+  createdAt                  DateTime    @default(now())
+  updatedAt                  DateTime    @updatedAt
+
+  // Relações
+  createdByAdmin User           @relation(fields: [createdByAdminId], references: [id], onDelete: Restrict)
+  speakerIds     String[]       @db.ObjectId
+  // Associação com palestrantes via array de IDs (representa N:N no UML).
+  // Navegação deve ser feita manualmente usando `speakerIds`.
+  sessions       EventSession[]
+  registrations  Registration[]
+
+  @@index([createdByAdminId])
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+}
+
+/// Sessões/Aulas de um evento (suporta eventos multi-sessão)
+model EventSession {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId     String   @db.ObjectId
+  sessionDate DateTime @db.Date
+  startTime   String   @db.String // "09:00" format
+  endTime     String   @db.String // "12:00" format
+  room        String?  @db.String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relações
+  event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  attendances Attendance[]
+
+  @@index([eventId])
+  @@index([sessionDate])
+}
+
+/// Inscrição de participante em evento
+model Registration {
+  id                     String             @id @default(auto()) @map("_id") @db.ObjectId
+  participantId          String             @db.ObjectId
+  eventId                String             @db.ObjectId
+  status                 RegistrationStatus @default(ATIVO)
+  registrationDate       DateTime           @default(now())
+  attendancePercent      Float              @default(0)
+  attendedSessionsCount  Int                @default(0)
+  totalSessionsCount     Int
+  approvedForCertificate Boolean            @default(false)
+  approvedAt             DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  // Relações
+  participant User         @relation("ParticipantRegistrations", fields: [participantId], references: [id], onDelete: Cascade)
+  event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  attendances Attendance[]
+  certificate Certificate?
+
+  @@unique([participantId, eventId])
+  @@index([participantId])
+  @@index([eventId])
+  @@index([status])
+  @@index([approvedForCertificate])
+}
+
+/// Controle de presença granular por sessão
+model Attendance {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  registrationId String    @db.ObjectId
+  eventSessionId String    @db.ObjectId
+  present        Boolean   @default(false)
+  checkInAt      DateTime?
+  checkOutAt     DateTime?
+  markedByUserId String?   @db.ObjectId
+  notes          String?   @db.String
+  createdAt      DateTime  @default(now())
+
+  // Relações
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  eventSession EventSession @relation(fields: [eventSessionId], references: [id], onDelete: Cascade)
+  markedByUser User?        @relation("MarkedByAdmin", fields: [markedByUserId], references: [id], onDelete: SetNull)
+
+  @@unique([registrationId, eventSessionId])
+  @@index([registrationId])
+  @@index([eventSessionId])
+  @@index([present])
+}
+
+/// Certificados emitidos aos participantes
+model Certificate {
+  id                       String    @id @default(auto()) @map("_id") @db.ObjectId
+  registrationId           String    @unique @db.ObjectId
+  verificationCode         String    @unique @db.String
+  issueDate                DateTime
+  pdfUrl                   String    @db.String
+  expiresAt                DateTime?
+  attendancePercentAtIssue Float
+  issuedByAdminId          String    @db.ObjectId
+  createdAt                DateTime  @default(now())
+
+  // Relações
+  registration  Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  issuedByAdmin User         @relation(fields: [issuedByAdminId], references: [id], onDelete: Restrict)
+
+  @@index([issuedByAdminId])
+}
+
+// Nota: Substituiu model "Participant" por "User" com role PARTICIPANTE
+// Todos os relacionamentos de participante foram mapeados para User

@@ -1,0 +1,1022 @@
+{
+    "info": {
+        "name": "Events Backend - Collection",
+        "_postman_id": "f2e9f5b2-collection",
+        "description": "Coleção com as principais requisições do back-end (importar no Postman). Substitua variáveis conforme necessário.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8888",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Users",
+            "item": [
+                {
+                    "name": "Create user",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"João Silva\",\n  \"email\": \"joao@example.com\",\n  \"password\": \"senha123\",\n  \"phone\": \"11999999999\",\n  \"role\": \"PARTICIPANTE\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Email already exists",
+                            "status": "Conflict",
+                            "code": 409,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"E-mail já cadastrado.\"\n}"
+                        },
+                        {
+                            "name": "Invalid password",
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Senha inválida.\"\n}"
+                        },
+                        {
+                            "name": "Invalid role",
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Função de usuário inválida.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "List users",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/users",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get user by id",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/users/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update user",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"phone\": \"11900001111\",\n  \"password\": \"novaSenha123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                ":id"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Email already exists",
+                            "status": "Conflict",
+                            "code": 409,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"E-mail já cadastrado.\"\n}"
+                        },
+                        {
+                            "name": "Invalid password",
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Senha inválida.\"\n}"
+                        },
+                        {
+                            "name": "Invalid role",
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Função de usuário inválida.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete user",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/users/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                ":id"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Events",
+            "item": [
+                {
+                    "name": "Create event",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Semana Acadêmica\",\n  \"description\": \"Evento\",\n  \"startDate\": \"2026-05-01\",\n  \"endDate\": \"2026-05-05\",\n  \"location\": \"Auditório\",\n  \"type\": \"Palestra\",\n  \"capacity\": 100,\n  \"certificateRequiredPercent\": 75,\n  \"createdByAdminId\": \"<admin_id>\",\n  \"status\": \"CRIANDO\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/events",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "events"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Only ADMIN can create events",
+                            "status": "Forbidden",
+                            "code": 403,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Apenas ADMIN pode criar eventos.\"\n}"
+                        },
+                        {
+                            "name": "Invalid ObjectId",
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"ID inválido em createdByAdminId.\"\n}"
+                        },
+                        {
+                            "name": "Invalid date format",
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Data inválida em startDate.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "List events",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/events",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "events"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get event",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/events/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "events",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update event / publish with speakers",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"ATIVA\",\n  \"speakerIds\": [\"<speaker_id_1>\", \"<speaker_id_2>\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/events/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "events",
+                                ":id"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Cannot publish without sessions",
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Não é possível publicar evento sem ao menos uma sessão.\"\n}"
+                        },
+                        {
+                            "name": "Cannot publish without speakers",
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Não é possível publicar evento sem ao menos um palestrante.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete event",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/events/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "events",
+                                ":id"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Speakers",
+            "item": [
+                {
+                    "name": "Create speaker",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Maria Souza\",\n  \"email\": \"maria@example.com\",\n  \"bio\": \"Especialista\",\n  \"institution\": \"Fatec\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/speakers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "speakers"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Email already exists",
+                            "status": "Conflict",
+                            "code": 409,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"E-mail já cadastrado.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "List speakers",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/speakers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "speakers"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get speaker",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/speakers/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "speakers",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update speaker (sync events)",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"eventIds\": [\"<event_id_1>\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/speakers/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "speakers",
+                                ":id"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Email already exists",
+                            "status": "Conflict",
+                            "code": 409,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"E-mail já cadastrado.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete speaker",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/speakers/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "speakers",
+                                ":id"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Registrations",
+            "item": [
+                {
+                    "name": "Create registration",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"participantId\": \"<participant_id>\",\n  \"eventId\": \"<event_id>\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/registrations",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "registrations"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Duplicate registration",
+                            "status": "Conflict",
+                            "code": 409,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Inscricao duplicada: este participante ja esta inscrito neste evento.\"\n}"
+                        },
+                        {
+                            "name": "Event not active",
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Inscrição só permitida em eventos com status ATIVA.\"\n}"
+                        },
+                        {
+                            "name": "Event capacity reached",
+                            "status": "Bad Request",
+                            "code": 400,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Capacidade do evento atingida.\"\n}"
+                        },
+                        {
+                            "name": "Event not found",
+                            "status": "Not Found",
+                            "code": 404,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"error\": \"Evento não encontrado.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "List registrations",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/registrations",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "registrations"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get registration",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/registrations/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "registrations",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update registration",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"CANCELADO\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/registrations/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "registrations",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete registration",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/registrations/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "registrations",
+                                ":id"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "EventSessions & Attendance",
+            "item": [
+                {
+                    "name": "Create session",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"sessionDate\": \"2026-05-19\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"11:00\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/events/:eventId/sessions",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "events",
+                                ":eventId",
+                                "sessions"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "List sessions for event",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/events/:eventId/sessions",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "events",
+                                ":eventId",
+                                "sessions"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get session",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/events/:eventId/sessions/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "events",
+                                ":eventId",
+                                "sessions",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update session",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"sessionDate\": \"2026-05-20\",\n  \"startTime\": \"10:00\",\n  \"endTime\": \"12:00\",\n  \"room\": \"Sala 11\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/events/:eventId/sessions/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "events",
+                                ":eventId",
+                                "sessions",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete session",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/events/:eventId/sessions/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "events",
+                                ":eventId",
+                                "sessions",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "List attendance for session",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/events/:eventId/sessions/:sessionId/attendance",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "events",
+                                ":eventId",
+                                "sessions",
+                                ":sessionId",
+                                "attendance"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "List attendance for registration",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/registrations/:registrationId/attendance",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "registrations",
+                                ":registrationId",
+                                "attendance"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create attendance (ADMIN)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"eventSessionId\": \"<session_id>\",\n  \"present\": true,\n  \"markedByUserId\": \"<admin_id>\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/registrations/:registrationId/attendance",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "registrations",
+                                ":registrationId",
+                                "attendance"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get attendance",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/registrations/:registrationId/attendance/:attendanceId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "registrations",
+                                ":registrationId",
+                                "attendance",
+                                ":attendanceId"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update attendance",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"present\": true,\n  \"notes\": \"Atualizado no Postman\",\n  \"markedByUserId\": \"<admin_id>\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/registrations/:registrationId/attendance/:attendanceId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "registrations",
+                                ":registrationId",
+                                "attendance",
+                                ":attendanceId"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete attendance",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/registrations/:registrationId/attendance/:attendanceId",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "registrations",
+                                ":registrationId",
+                                "attendance",
+                                ":attendanceId"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Certificates",
+            "item": [
+                {
+                    "name": "Upload certificate PDF",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "multipart/form-data"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "pdf",
+                                    "type": "file",
+                                    "src": ""
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/certificates/upload",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "certificates",
+                                "upload"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create certificate",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"registrationId\": \"<registration_id>\",\n  \"pdfUrl\": \"https://url/cert.pdf\",\n  \"issuedByAdminId\": \"<admin_id>\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/certificates",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "certificates"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "List certificates",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/certificates",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "certificates"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get certificate",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/certificates/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "certificates",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update certificate",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"pdfUrl\": \"https://url/certificado-atualizado.pdf\",\n  \"issuedByAdminId\": \"<admin_id>\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/certificates/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "certificates",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete certificate",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/certificates/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "certificates",
+                                ":id"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

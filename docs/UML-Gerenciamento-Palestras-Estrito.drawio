@@ -1,0 +1,232 @@
+<mxfile host="65bd71144e">
+    <diagram name="Pagina-1" id="Z_UR3sG__yfLRbvToOji">
+        <mxGraphModel dx="1482" dy="736" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="event" value="Event" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="280" y="495" width="230" height="247" as="geometry"/>
+                </mxCell>
+                <mxCell id="event_fields" value="+ id: String (PK)&lt;div&gt;+ title: String (unique)&lt;/div&gt;&lt;div&gt;+ description: String?&lt;/div&gt;&lt;div&gt;+ startDate: DateTime&lt;/div&gt;&lt;div&gt;+ endDate: DateTime&lt;/div&gt;&lt;div&gt;+ location: String&lt;/div&gt;&lt;div&gt;+ type: String&lt;/div&gt;&lt;div&gt;+ capacity: Int&lt;/div&gt;&lt;div&gt;+ certificateRequiredPercent: Int = 75&lt;/div&gt;&lt;div&gt;+ speakerIds: String[ ]&lt;/div&gt;&lt;div&gt;+ createdByAdminId: String (FK)&lt;/div&gt;&lt;div&gt;+ status: EventStatus&lt;/div&gt;&lt;div&gt;+ createdAt: DateTime&lt;/div&gt;&lt;div&gt;+ updatedAt: DateTime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" parent="event" vertex="1">
+                    <mxGeometry y="26" width="230" height="221" as="geometry"/>
+                </mxCell>
+                <mxCell id="registration" value="Registration" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="670" y="508" width="240" height="220" as="geometry"/>
+                </mxCell>
+                <mxCell id="registration_fields" value="+ id: String (PK)&lt;div&gt;+ participantId: String (FK)&lt;/div&gt;&lt;div&gt;+ eventId: String (FK)&lt;/div&gt;&lt;div&gt;+ status: RegistrationStatus&lt;/div&gt;&lt;div&gt;+ registrationDate: DateTime&lt;/div&gt;&lt;div&gt;+ attendancePercent: Float = 0&lt;/div&gt;&lt;div&gt;+ attendedSessionsCount: Int = 0&lt;/div&gt;&lt;div&gt;+ totalSessionsCount: Int&lt;/div&gt;&lt;div&gt;+ approvedForCertificate: Boolean (false)&lt;/div&gt;&lt;div&gt;+ approvedAt: DateTime?&lt;/div&gt;&lt;div&gt;+ createdAt: DateTime&lt;/div&gt;&lt;div&gt;+ updatedAt: DateTime&lt;/div&gt;&lt;div style=&quot;color: rgb(102, 102, 102); font-size: 0.9em;&quot;&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" parent="registration" vertex="1">
+                    <mxGeometry y="26" width="240" height="194" as="geometry"/>
+                </mxCell>
+                <mxCell id="user" value="User" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="315" y="904" width="160" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="user_fields" value="+ id: String (PK)&lt;div&gt;+ name: String&lt;/div&gt;&lt;div&gt;+ email: String (unique)&lt;/div&gt;&lt;div&gt;+ passwordHash: String&lt;/div&gt;&lt;div&gt;+ role: UserRole&lt;/div&gt;&lt;div&gt;+ phone: String?&lt;/div&gt;&lt;div&gt;+ isActive: Boolean = true&lt;/div&gt;&lt;div&gt;+ createdAt: DateTime&lt;/div&gt;&lt;div&gt;+ updatedAt: DateTime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" parent="user" vertex="1">
+                    <mxGeometry y="26" width="160" height="144" as="geometry"/>
+                </mxCell>
+                <mxCell id="speaker" value="Speaker" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="517" width="160" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="speaker_fields" value="+ id: String (PK)&lt;div&gt;+ name: String&lt;/div&gt;&lt;div&gt;+ email: String (unique)&lt;/div&gt;&lt;div&gt;+ bio: String?&lt;/div&gt;&lt;div&gt;+ institution: String?&lt;/div&gt;&lt;div&gt;+ phone: String?&lt;/div&gt;&lt;div&gt;+ eventIds: String[ ]&lt;/div&gt;&lt;div&gt;+ createdAt: DateTime&lt;/div&gt;&lt;div&gt;+ updatedAt: DateTime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" parent="speaker" vertex="1">
+                    <mxGeometry y="26" width="160" height="154" as="geometry"/>
+                </mxCell>
+                <mxCell id="attendance" value="Attendance" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="695" y="167" width="190" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="attendance_fields" value="+ id: String (PK)&lt;div&gt;+ registrationId: String (FK)&lt;/div&gt;&lt;div&gt;+ eventSessionId: String (FK)&lt;/div&gt;&lt;div&gt;+ present: Boolean = false&lt;/div&gt;&lt;div&gt;+ checkInAt: DateTime?&lt;/div&gt;&lt;div&gt;+ checkOutAt: DateTime?&lt;/div&gt;&lt;div&gt;+ markedByUserId: String (FK)?&lt;/div&gt;&lt;div&gt;+ notes: String?&lt;/div&gt;&lt;div&gt;+ createdAt: DateTime&lt;/div&gt;&lt;div style=&quot;color: rgb(102, 102, 102); font-size: 0.9em;&quot;&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" parent="attendance" vertex="1">
+                    <mxGeometry y="26" width="190" height="144" as="geometry"/>
+                </mxCell>
+                <mxCell id="certificate" value="Certificate" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="1011" y="910" width="230" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="certificate_fields" value="+ id: String (PK)&lt;div&gt;+ registrationId: String (FK, unique)&lt;/div&gt;&lt;div&gt;+ verificationCode: String (unique)&lt;/div&gt;&lt;div&gt;+ issueDate: DateTime&lt;/div&gt;&lt;div&gt;+ pdfUrl: String&lt;/div&gt;&lt;div&gt;+ attendancePercentAtIssue: Float&lt;/div&gt;&lt;div&gt;+ expiresAt: DateTime?&lt;/div&gt;&lt;div&gt;+ createdAt: DateTime&lt;/div&gt;&lt;div&gt;+ issuedByAdminId: String (FK)&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" parent="certificate" vertex="1">
+                    <mxGeometry y="26" width="230" height="154" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_speaker_event" value="" style="endArrow=block;startArrow=block;endFill=1;startFill=1;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="speaker_fields" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="280" y="620" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="card_speaker" value="1..*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="190" y="580" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="card_event" value="0..*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="230" y="580" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_admin_event" value="" style="endArrow=block;endFill=1;endSize=12;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="user" target="event" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="370" y="690" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="admin_lbl" value="Associação (soft delete)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="430" y="800" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="admin_c1" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="860" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="admin_c2" value="0..*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="740" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_participant_registration" value="" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=1;curved=0;exitX=0.994;exitY=0.413;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" parent="1" source="user_fields" target="registration_fields" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="729" y="990"/>
+                        </Array>
+                        <mxPoint x="449" y="984.5" as="sourcePoint"/>
+                        <mxPoint x="731.9351032448376" y="785.5" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="part_lbl" value="Composicão" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="550" y="627" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="part_c1" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="475" y="960" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="part_c2" value="0..*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="670" y="740" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_event_registration" value="" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=-0.008;exitY=0.436;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="registration_fields" target="event" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="evt_reg_c1" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="510" y="580" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="evt_reg_c2" value="0..*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="620" y="580" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_registration_attendance" value="" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="registration" target="attendance" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="reg_att_c1" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="787" y="478" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="reg_att_c2" value="0..*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="790" y="350" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_registration_status" value="" style="endArrow=none;startArrow=none;html=1;strokeWidth=3;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" parent="1" source="registration_fields" target="2" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="950" y="590" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="reg_status_c1" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="990" y="550" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="reg_status_c2" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="1018" y="560" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="reg_cert_c1" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="827" y="740" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="reg_cert_c2" value="0..1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="968" y="960" width="40" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="reg_cert_lbl" value="gerado se presença &amp;gt;= 75%" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="798" y="1020" width="170" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="event_session" value="EventSession" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="310" y="167" width="170" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="event_session_fields" value="+ id: String (PK)&lt;div&gt;+ eventId: String (FK)&lt;/div&gt;&lt;div&gt;+ sessionDate: DateTime&lt;/div&gt;&lt;div&gt;+ startTime: String&lt;/div&gt;&lt;div&gt;+ endTime: String&lt;/div&gt;&lt;div&gt;+ room: String?&lt;/div&gt;&lt;div&gt;+ createdAt: DateTime&lt;/div&gt;&lt;div&gt;+ updatedAt: DateTime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=1;" parent="event_session" vertex="1">
+                    <mxGeometry y="26" width="170" height="134" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_event_session" value="" style="endArrow=block;startArrow=block;endFill=1;startFill=1;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="event" target="event_session" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="card_event_session" value="1..*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="390" y="330" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="card_session_events" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="465" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="rel_session_attendance" value="" style="endArrow=block;startArrow=block;endFill=1;startFill=1;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.46;exitY=0.004;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="event_session" target="attendance" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="128" y="60" as="sourcePoint"/>
+                        <mxPoint x="748" y="50" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="388" y="40"/>
+                            <mxPoint x="790" y="40"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="card_session_att" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="390" y="120" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="card_att_session" value="0..*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="787" y="129" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="&lt;p style=&quot;margin: 4px 0px 0px;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;RegistrationStatus&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;ATIVO&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;CANCELADO&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;CONCLUIDO&lt;/p&gt;" style="verticalAlign=top;align=center;overflow=fill;html=1;whiteSpace=wrap;" parent="1" vertex="1">
+                    <mxGeometry x="1020" y="537" width="150" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="event_status_enum" value="&lt;p style=&quot;margin: 4px 0px 0px;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;EventStatus&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;CRIANDO&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;ATIVA&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;ENCERRADA&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;CANCELADA&lt;/p&gt;" style="verticalAlign=top;align=center;overflow=fill;html=1;whiteSpace=wrap;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="760" width="150" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="user_role_enum" value="&lt;p style=&quot;margin: 4px 0px 0px;&quot;&gt;&lt;i&gt;&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&lt;/i&gt;&lt;br&gt;&lt;b&gt;UserRole&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot; style=&quot;border-style:solid;&quot;&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;ADMIN&lt;/p&gt;&lt;p style=&quot;margin: 0px 0px 0px 4px;&quot;&gt;PARTICIPANTE&lt;/p&gt;" style="verticalAlign=top;align=center;overflow=fill;html=1;whiteSpace=wrap;" parent="1" vertex="1">
+                    <mxGeometry x="45" y="949" width="150" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;rounded=1;curved=0;entryX=0.626;entryY=0.999;entryDx=0;entryDy=0;entryPerimeter=0;exitX=-0.001;exitY=0.36;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="certificate_fields" target="registration_fields" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="820" y="990"/>
+                        </Array>
+                        <mxPoint x="980" y="1000" as="sourcePoint"/>
+                        <mxPoint x="810" y="850" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="11" value="" style="endArrow=none;startArrow=none;html=1;strokeWidth=3;entryX=-0.001;entryY=0.402;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryPerimeter=0;" parent="1" source="user_role_enum" target="user_fields" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="410" y="988" as="targetPoint"/>
+                        <mxPoint x="230" y="986" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="16" value="" style="endArrow=none;startArrow=none;html=1;strokeWidth=3;entryX=0.25;entryY=1;entryDx=0;entryDy=0;exitX=1.01;exitY=0.64;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="event_status_enum" target="event_fields" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="335" y="830" as="targetPoint"/>
+                        <mxPoint x="215" y="831" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="338" y="830"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="17" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="305" y="742" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="800" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="195" y="949" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="285" y="949" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="910" y="550" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="&lt;span style=&quot;color: rgb(109, 109, 109); font-size: 10.8px; text-align: left; text-wrap-mode: wrap;&quot;&gt;@@unique([registrationId, eventSessionId])&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="848" y="289" width="230" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="&lt;span style=&quot;color: rgb(109, 109, 109); font-size: 10.8px; text-align: left; text-wrap-mode: wrap;&quot;&gt;@@unique([participantId, eventId])&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="893" y="686.5" width="190" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="Composicão" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="827" y="860" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="Composicão" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="630" y="860" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="Associação" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="410" y="400" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="Associação" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="555" y="60" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" value="Associação" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="627" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="Composicão" style="text;html=1;align=center;verticalAlign=middle;resizable=0;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="810" y="400" width="90" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

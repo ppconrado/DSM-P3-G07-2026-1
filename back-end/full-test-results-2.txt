@@ -1,0 +1,604 @@
+
+> express-app@0.0.1 test
+> mocha --exit 'test/**/*.test.js'
+
+
+
+  Attendance admin-only rule
+---
+Query: db.User.insertOne({ name: "Admin Test", email: "admin-1779247557593@example.com", passwordHash: "", role: "ADMIN", isActive: true, createdAt: DateTime("2026-05-20 3:25:57.655 +00:00:00"), updatedAt: DateTime("2026-05-20 3:25:57.655 +00:00:00"), })
+Params: []
+Duration: 187ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c5300a97ec54f38f9a"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, name: 1, email: 1, passwordHash: 1, phone: 1, role: 1, isActive: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.User.insertOne({ name: "Participant Test", email: "participant-1779247558011@example.com", passwordHash: "participant-test-password", role: "PARTICIPANTE", isActive: true, createdAt: DateTime("2026-05-20 3:25:58.042 +00:00:00"), updatedAt: DateTime("2026-05-20 3:25:58.042 +00:00:00"), })
+Params: []
+Duration: 24ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9b"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, name: 1, email: 1, passwordHash: 1, phone: 1, role: 1, isActive: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 25ms
+[0mPOST /users [32m201[0m 93.362 ms - 279[0m
+---
+Query: db.Event.insertOne({ title: "Event Test 1779247558119", description: "Integration event", startDate: DateTime("2026-05-20 3:25:58.118 +00:00:00"), endDate: DateTime("2026-05-21 3:25:58.118 +00:00:00"), location: "Online", type: "Curso", capacity: 10, certificateRequiredPercent: 75, status: "ATIVA", createdByAdminId: ObjectId("6a0d29c5300a97ec54f38f9a"), createdAt: DateTime("2026-05-20 3:25:58.131 +00:00:00"), updatedAt: DateTime("2026-05-20 3:25:58.131 +00:00:00"), speakerIds: [ ], })
+Params: []
+Duration: 23ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9c"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, title: 1, description: 1, startDate: 1, endDate: 1, location: 1, type: 1, capacity: 1, certificateRequiredPercent: 1, status: 1, createdByAdminId: 1, createdAt: 1, updatedAt: 1, speakerIds: 1, }, }, ])
+Params: []
+Duration: 24ms
+[0mPOST /events [32m201[0m 77.890 ms - 416[0m
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9c"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.EventSession.insertOne({ eventId: ObjectId("6a0d29c6300a97ec54f38f9c"), sessionDate: DateTime("2026-05-20 3:25:58.118 +00:00:00"), startTime: "09:00", endTime: "11:00", createdAt: DateTime("2026-05-20 3:25:58.238 +00:00:00"), updatedAt: DateTime("2026-05-20 3:25:58.238 +00:00:00"), })
+Params: []
+Duration: 24ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9d"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventId: 1, sessionDate: 1, startTime: 1, endTime: 1, room: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9c"), }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 22ms
+[0mPOST /events/6a0d29c6300a97ec54f38f9c/sessions [32m201[0m 129.727 ms - 239[0m
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9c"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, status: 1, capacity: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9c"), }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, }, }, { $group: { _id: null, count_all: { $sum: 1, }, }, }, ])
+Params: []
+Duration: 22ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9c"), }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, }, }, { $group: { _id: null, count_all: { $sum: 1, }, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.Registration.insertOne({ participantId: ObjectId("6a0d29c6300a97ec54f38f9b"), eventId: ObjectId("6a0d29c6300a97ec54f38f9c"), status: "ATIVO", registrationDate: DateTime("2026-05-20 3:25:58.42 +00:00:00"), attendancePercent: 0, attendedSessionsCount: 0, totalSessionsCount: 1, approvedForCertificate: false, createdAt: DateTime("2026-05-20 3:25:58.42 +00:00:00"), updatedAt: DateTime("2026-05-20 3:25:58.42 +00:00:00"), })
+Params: []
+Duration: 30ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, participantId: 1, eventId: 1, status: 1, registrationDate: 1, attendancePercent: 1, attendedSessionsCount: 1, totalSessionsCount: 1, approvedForCertificate: 1, approvedAt: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 26ms
+[0mPOST /registrations [32m201[0m 161.542 ms - 374[0m
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9d"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 22ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9b"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, role: 1, }, }, ])
+Params: []
+Duration: 24ms
+[0mPOST /registrations/6a0d29c6300a97ec54f38f9e/attendance [33m403[0m 75.633 ms - 47[0m
+    Ô£ö should reject marking attendance by non-admin (79ms)
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9d"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c5300a97ec54f38f9a"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, role: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.Attendance.insertOne({ registrationId: ObjectId("6a0d29c6300a97ec54f38f9e"), eventSessionId: ObjectId("6a0d29c6300a97ec54f38f9d"), present: true, markedByUserId: ObjectId("6a0d29c5300a97ec54f38f9a"), createdAt: DateTime("2026-05-20 3:25:58.668 +00:00:00"), })
+Params: []
+Duration: 22ms
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9f"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, registrationId: 1, eventSessionId: 1, present: 1, checkInAt: 1, checkOutAt: 1, markedByUserId: 1, notes: 1, createdAt: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9c"), }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, }, }, { $group: { _id: null, count_all: { $sum: 1, }, }, }, ])
+Params: []
+Duration: 25ms
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$registrationId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$registrationId", "$$REMOVE", ], }, ], }, { $and: [ { $eq: [ "$present", { $literal: true, }, ], }, { $ne: [ "$present", "$$REMOVE", ], }, ], }, ], }, }, }, { $group: { _id: null, count_all: { $sum: 1, }, }, }, ])
+Params: []
+Duration: 159ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.Registration.updateMany({ _id: { $in: [ ObjectId("6a0d29c6300a97ec54f38f9e"), ], }, },[{ $set: { attendancePercent: { $literal: 100, }, }, },
+{ $set: { attendedSessionsCount: { $literal: 1, }, }, },
+{ $set: { totalSessionsCount: { $literal: 1, }, }, },
+{ $set: { updatedAt: { $literal: DateTime("2026-05-20 3:25:58.932 +00:00:00"), }, }, }])
+Params: []
+Duration: 30ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, participantId: 1, eventId: 1, status: 1, registrationDate: 1, attendancePercent: 1, attendedSessionsCount: 1, totalSessionsCount: 1, approvedForCertificate: 1, approvedAt: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 33ms
+[0mPOST /registrations/6a0d29c6300a97ec54f38f9e/attendance [32m201[0m 459.538 ms - 267[0m
+    Ô£ö should allow marking attendance by admin (462ms)
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9d"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 25ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c5300a97ec54f38f9a"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, role: 1, }, }, ])
+Params: []
+Duration: 23ms
+[0mPOST /registrations/6a0d29c6300a97ec54f38f9e/attendance [33m400[0m 74.506 ms - 40[0m
+    Ô£ö should reject invalid attendance date strings (78ms)
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, attendancePercent: 1, approvedForCertificate: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Certificate.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$registrationId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$registrationId", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, registrationId: 1, verificationCode: 1, issueDate: 1, pdfUrl: 1, expiresAt: 1, attendancePercentAtIssue: 1, issuedByAdminId: 1, createdAt: 1, }, }, ])
+Params: []
+Duration: 22ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c5300a97ec54f38f9a"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, role: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9c"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, certificateRequiredPercent: 1, }, }, ])
+Params: []
+Duration: 24ms
+[0mPOST /certificates [33m400[0m 97.869 ms - 40[0m
+    Ô£ö should reject invalid certificate date strings (100ms)
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$registrationId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$registrationId", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Attendance.deleteMany({ _id: { $in: [ ObjectId("6a0d29c6300a97ec54f38f9f"), ], }, })
+Params: []
+Duration: 23ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 25ms
+---
+Query: db.Certificate.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$registrationId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, ], }, { $ne: [ "$registrationId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, registrationId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$registrationId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9e"), }, ], }, ], }, { $ne: [ "$registrationId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, registrationId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Registration.deleteMany({ _id: { $in: [ ObjectId("6a0d29c6300a97ec54f38f9e"), ], }, })
+Params: []
+Duration: 23ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9d"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 25ms
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$eventSessionId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9d"), }, ], }, ], }, { $ne: [ "$eventSessionId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventSessionId: 1, }, }, ])
+Params: []
+Duration: 25ms
+---
+Query: db.EventSession.deleteMany({ _id: { $in: [ ObjectId("6a0d29c6300a97ec54f38f9d"), ], }, })
+Params: []
+Duration: 23ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9c"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 25ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9c"), }, ], }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 25ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9c"), }, ], }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 26ms
+---
+Query: db.Event.deleteMany({ _id: { $in: [ ObjectId("6a0d29c6300a97ec54f38f9c"), ], }, })
+Params: []
+Duration: 25ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c5300a97ec54f38f9a"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.Certificate.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$issuedByAdminId", { $literal: ObjectId("6a0d29c5300a97ec54f38f9a"), }, ], }, ], }, { $ne: [ "$issuedByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, issuedByAdminId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$markedByUserId", { $literal: ObjectId("6a0d29c5300a97ec54f38f9a"), }, ], }, ], }, { $ne: [ "$markedByUserId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, markedByUserId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$participantId", { $literal: ObjectId("6a0d29c5300a97ec54f38f9a"), }, ], }, ], }, { $ne: [ "$participantId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, participantId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$createdByAdminId", { $literal: ObjectId("6a0d29c5300a97ec54f38f9a"), }, ], }, ], }, { $ne: [ "$createdByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, createdByAdminId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.User.deleteMany({ _id: { $in: [ ObjectId("6a0d29c5300a97ec54f38f9a"), ], }, })
+Params: []
+Duration: 23ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c6300a97ec54f38f9b"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 22ms
+---
+Query: db.Certificate.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$issuedByAdminId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9b"), }, ], }, ], }, { $ne: [ "$issuedByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, issuedByAdminId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$markedByUserId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9b"), }, ], }, ], }, { $ne: [ "$markedByUserId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, markedByUserId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$participantId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9b"), }, ], }, ], }, { $ne: [ "$participantId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, participantId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$createdByAdminId", { $literal: ObjectId("6a0d29c6300a97ec54f38f9b"), }, ], }, ], }, { $ne: [ "$createdByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, createdByAdminId: 1, }, }, ])
+Params: []
+Duration: 34ms
+---
+Query: db.User.deleteMany({ _id: { $in: [ ObjectId("6a0d29c6300a97ec54f38f9b"), ], }, })
+Params: []
+Duration: 32ms
+
+  Integration tests
+---
+Query: db.runCommand({ aggregate: "Event", pipeline: [ { $match: { }, }, ], cursor: { }, })
+Params: []
+Duration: 23ms
+[0mGET /events [32m200[0m 25.428 ms - 1462[0m
+    Ô£ö GET /events returns 200
+---
+Query: db.runCommand({ aggregate: "Speaker", pipeline: [ { $match: { }, }, ], cursor: { }, })
+Params: []
+Duration: 23ms
+[0mGET /speakers [32m200[0m 24.508 ms - 884[0m
+    Ô£ö GET /speakers returns 200
+---
+Query: db.User.insertOne({ name: "Integration User", email: "user-1779247560068@example.com", passwordHash: "integration-user-password", role: "ADMIN", isActive: true, createdAt: DateTime("2026-05-20 3:26:00.08 +00:00:00"), updatedAt: DateTime("2026-05-20 3:26:00.08 +00:00:00"), })
+Params: []
+Duration: 23ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa0"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, name: 1, email: 1, passwordHash: 1, phone: 1, role: 1, isActive: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 23ms
+[0mPOST /users [32m201[0m 74.863 ms - 265[0m
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa0"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.User.updateMany({ _id: { $in: [ ObjectId("6a0d29c8300a97ec54f38fa0"), ], }, },[{ $set: { phone: { $literal: "(11) 98888-7777", }, }, },
+{ $set: { updatedAt: { $literal: DateTime("2026-05-20 3:26:00.157 +00:00:00"), }, }, }])
+Params: []
+Duration: 28ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa0"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, name: 1, email: 1, passwordHash: 1, phone: 1, role: 1, isActive: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 22ms
+[0mPATCH /users/6a0d29c8300a97ec54f38fa0 [32m200[0m 103.175 ms - 278[0m
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa0"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, isActive: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa0"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.User.updateMany({ _id: { $in: [ ObjectId("6a0d29c8300a97ec54f38fa0"), ], }, },[{ $set: { isActive: { $literal: false, }, }, },
+{ $set: { updatedAt: { $literal: DateTime("2026-05-20 3:26:00.288 +00:00:00"), }, }, }])
+Params: []
+Duration: 29ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa0"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, name: 1, email: 1, passwordHash: 1, phone: 1, role: 1, isActive: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 24ms
+[0mDELETE /users/6a0d29c8300a97ec54f38fa0 [32m200[0m 131.186 ms - 46[0m
+    Ô£ö Create, update and delete user lifecycle (318ms)
+---
+Query: db.User.insertOne({ name: "Integration Test", email: "test-1779247560387@example.com", passwordHash: "integration-test-password", role: "PARTICIPANTE", isActive: true, createdAt: DateTime("2026-05-20 3:26:00.398 +00:00:00"), updatedAt: DateTime("2026-05-20 3:26:00.398 +00:00:00"), })
+Params: []
+Duration: 24ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa1"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, name: 1, email: 1, passwordHash: 1, phone: 1, role: 1, isActive: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 24ms
+[0mPOST /users [32m201[0m 76.438 ms - 272[0m
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa1"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, isActive: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa1"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.User.updateMany({ _id: { $in: [ ObjectId("6a0d29c8300a97ec54f38fa1"), ], }, },[{ $set: { isActive: { $literal: false, }, }, },
+{ $set: { updatedAt: { $literal: DateTime("2026-05-20 3:26:00.501 +00:00:00"), }, }, }])
+Params: []
+Duration: 28ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa1"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, name: 1, email: 1, passwordHash: 1, phone: 1, role: 1, isActive: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 25ms
+[0mDELETE /users/6a0d29c8300a97ec54f38fa1 [32m200[0m 128.520 ms - 46[0m
+    Ô£ö Create and delete participant lifecycle through users (210ms)
+---
+Query: db.User.insertOne({ name: "Event Admin Test", email: "event-admin-1779247560598@example.com", passwordHash: "", role: "ADMIN", isActive: true, createdAt: DateTime("2026-05-20 3:26:00.607 +00:00:00"), updatedAt: DateTime("2026-05-20 3:26:00.607 +00:00:00"), })
+Params: []
+Duration: 25ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa2"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, name: 1, email: 1, passwordHash: 1, phone: 1, role: 1, isActive: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.Event.insertOne({ title: "Fatec TechWeek 1779247560674", description: "Evento Acad├¬mico", startDate: DateTime("2026-05-22 0:00:00.0 +00:00:00"), endDate: DateTime("2026-05-25 0:00:00.0 +00:00:00"), location: "Audit├│rio", type: "Palestra", capacity: 100, certificateRequiredPercent: 75, status: "CRIANDO", createdByAdminId: ObjectId("6a0d29c8300a97ec54f38fa2"), createdAt: DateTime("2026-05-20 3:26:00.686 +00:00:00"), updatedAt: DateTime("2026-05-20 3:26:00.686 +00:00:00"), })
+Params: []
+Duration: 24ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa3"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, title: 1, description: 1, startDate: 1, endDate: 1, location: 1, type: 1, capacity: 1, certificateRequiredPercent: 1, status: 1, createdByAdminId: 1, createdAt: 1, updatedAt: 1, speakerIds: 1, }, }, ])
+Params: []
+Duration: 24ms
+[0mPOST /events [32m201[0m 78.066 ms - 430[0m
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$title", { $literal: "Fatec TechWeek 1779247560674", }, ], }, { $ne: [ "$title", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c8300a97ec54f38fa3"), }, ], }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c8300a97ec54f38fa3"), }, ], }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Event.deleteMany({ _id: { $in: [ ObjectId("6a0d29c8300a97ec54f38fa3"), ], }, })
+Params: []
+Duration: 23ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c8300a97ec54f38fa2"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 22ms
+---
+Query: db.Certificate.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$issuedByAdminId", { $literal: ObjectId("6a0d29c8300a97ec54f38fa2"), }, ], }, ], }, { $ne: [ "$issuedByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, issuedByAdminId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$markedByUserId", { $literal: ObjectId("6a0d29c8300a97ec54f38fa2"), }, ], }, ], }, { $ne: [ "$markedByUserId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, markedByUserId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$participantId", { $literal: ObjectId("6a0d29c8300a97ec54f38fa2"), }, ], }, ], }, { $ne: [ "$participantId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, participantId: 1, }, }, ])
+Params: []
+Duration: 25ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$createdByAdminId", { $literal: ObjectId("6a0d29c8300a97ec54f38fa2"), }, ], }, ], }, { $ne: [ "$createdByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, createdByAdminId: 1, }, }, ])
+Params: []
+Duration: 25ms
+---
+Query: db.User.deleteMany({ _id: { $in: [ ObjectId("6a0d29c8300a97ec54f38fa2"), ], }, })
+Params: []
+Duration: 23ms
+    Ô£ö POST /events accepts date-only future payloads (452ms)
+---
+Query: db.User.insertOne({ name: "Event Admin Invalid Date Test", email: "event-admin-invalid-1779247561051@example.com", passwordHash: "", role: "ADMIN", isActive: true, createdAt: DateTime("2026-05-20 3:26:01.06 +00:00:00"), updatedAt: DateTime("2026-05-20 3:26:01.06 +00:00:00"), })
+Params: []
+Duration: 32ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c9300a97ec54f38fa4"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, name: 1, email: 1, passwordHash: 1, phone: 1, role: 1, isActive: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 23ms
+[0mPOST /events [33m400[0m 0.477 ms - 38[0m
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$title", { $literal: "Invalid Event 1779247561143", }, ], }, { $ne: [ "$title", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c9300a97ec54f38fa4"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 22ms
+---
+Query: db.Certificate.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$issuedByAdminId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa4"), }, ], }, ], }, { $ne: [ "$issuedByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, issuedByAdminId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$markedByUserId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa4"), }, ], }, ], }, { $ne: [ "$markedByUserId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, markedByUserId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$participantId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa4"), }, ], }, ], }, { $ne: [ "$participantId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, participantId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$createdByAdminId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa4"), }, ], }, ], }, { $ne: [ "$createdByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, createdByAdminId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.User.deleteMany({ _id: { $in: [ ObjectId("6a0d29c9300a97ec54f38fa4"), ], }, })
+Params: []
+Duration: 23ms
+    Ô£ö POST /events rejects invalid date strings (315ms)
+---
+Query: db.User.insertOne({ name: "Session Admin Test", email: "session-admin-1779247561366@example.com", passwordHash: "", role: "ADMIN", isActive: true, createdAt: DateTime("2026-05-20 3:26:01.375 +00:00:00"), updatedAt: DateTime("2026-05-20 3:26:01.375 +00:00:00"), })
+Params: []
+Duration: 23ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c9300a97ec54f38fa5"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, name: 1, email: 1, passwordHash: 1, phone: 1, role: 1, isActive: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.Event.insertOne({ title: "Session Event 1779247561441", description: "Evento Acad├¬mico", startDate: DateTime("2026-05-22 0:00:00.0 +00:00:00"), endDate: DateTime("2026-05-25 0:00:00.0 +00:00:00"), location: "Audit├│rio", type: "Palestra", capacity: 100, certificateRequiredPercent: 75, status: "CRIANDO", createdByAdminId: ObjectId("6a0d29c9300a97ec54f38fa5"), createdAt: DateTime("2026-05-20 3:26:01.453 +00:00:00"), updatedAt: DateTime("2026-05-20 3:26:01.453 +00:00:00"), })
+Params: []
+Duration: 23ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c9300a97ec54f38fa6"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, title: 1, description: 1, startDate: 1, endDate: 1, location: 1, type: 1, capacity: 1, certificateRequiredPercent: 1, status: 1, createdByAdminId: 1, createdAt: 1, updatedAt: 1, speakerIds: 1, }, }, ])
+Params: []
+Duration: 24ms
+[0mPOST /events [32m201[0m 78.003 ms - 429[0m
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c9300a97ec54f38fa6"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.EventSession.insertOne({ eventId: ObjectId("6a0d29c9300a97ec54f38fa6"), sessionDate: DateTime("2026-05-23 0:00:00.0 +00:00:00"), startTime: "16:00", endTime: "18:00", room: "Sala 10", createdAt: DateTime("2026-05-20 3:26:01.558 +00:00:00"), updatedAt: DateTime("2026-05-20 3:26:01.558 +00:00:00"), })
+Params: []
+Duration: 29ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c9300a97ec54f38fa7"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventId: 1, sessionDate: 1, startTime: 1, endTime: 1, room: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 26ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa6"), }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 26ms
+[0mPOST /events/6a0d29c9300a97ec54f38fa6/sessions [32m201[0m 138.839 ms - 244[0m
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa6"), }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$eventSessionId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa7"), }, ], }, ], }, { $ne: [ "$eventSessionId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventSessionId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.EventSession.deleteMany({ _id: { $in: [ ObjectId("6a0d29c9300a97ec54f38fa7"), ], }, })
+Params: []
+Duration: 23ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$title", { $literal: "Session Event 1779247561441", }, ], }, { $ne: [ "$title", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 31ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa6"), }, ], }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa6"), }, ], }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Event.deleteMany({ _id: { $in: [ ObjectId("6a0d29c9300a97ec54f38fa6"), ], }, })
+Params: []
+Duration: 25ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29c9300a97ec54f38fa5"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Certificate.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$issuedByAdminId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa5"), }, ], }, ], }, { $ne: [ "$issuedByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, issuedByAdminId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$markedByUserId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa5"), }, ], }, ], }, { $ne: [ "$markedByUserId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, markedByUserId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$participantId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa5"), }, ], }, ], }, { $ne: [ "$participantId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, participantId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$createdByAdminId", { $literal: ObjectId("6a0d29c9300a97ec54f38fa5"), }, ], }, ], }, { $ne: [ "$createdByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, createdByAdminId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.User.deleteMany({ _id: { $in: [ ObjectId("6a0d29c9300a97ec54f38fa5"), ], }, })
+Params: []
+Duration: 23ms
+    Ô£ö POST /events/:eventId/sessions accepts date-only sessionDate payloads (697ms)
+---
+Query: db.User.insertOne({ name: "Session Invalid Date Admin Test", email: "session-invalid-admin-1779247562064@example.com", passwordHash: "", role: "ADMIN", isActive: true, createdAt: DateTime("2026-05-20 3:26:02.073 +00:00:00"), updatedAt: DateTime("2026-05-20 3:26:02.073 +00:00:00"), })
+Params: []
+Duration: 23ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29ca300a97ec54f38fa8"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, name: 1, email: 1, passwordHash: 1, phone: 1, role: 1, isActive: 1, createdAt: 1, updatedAt: 1, }, }, ])
+Params: []
+Duration: 24ms
+---
+Query: db.Event.insertOne({ title: "Session Invalid Event 1779247562141", description: "Evento Acad├¬mico", startDate: DateTime("2026-05-22 0:00:00.0 +00:00:00"), endDate: DateTime("2026-05-25 0:00:00.0 +00:00:00"), location: "Audit├│rio", type: "Palestra", capacity: 100, certificateRequiredPercent: 75, status: "CRIANDO", createdByAdminId: ObjectId("6a0d29ca300a97ec54f38fa8"), createdAt: DateTime("2026-05-20 3:26:02.152 +00:00:00"), updatedAt: DateTime("2026-05-20 3:26:02.152 +00:00:00"), })
+Params: []
+Duration: 24ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29ca300a97ec54f38fa9"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, title: 1, description: 1, startDate: 1, endDate: 1, location: 1, type: 1, capacity: 1, certificateRequiredPercent: 1, status: 1, createdByAdminId: 1, createdAt: 1, updatedAt: 1, speakerIds: 1, }, }, ])
+Params: []
+Duration: 24ms
+[0mPOST /events [32m201[0m 82.411 ms - 437[0m
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29ca300a97ec54f38fa9"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 23ms
+[0mPOST /events/6a0d29ca300a97ec54f38fa9/sessions [33m400[0m 25.083 ms - 42[0m
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29ca300a97ec54f38fa9"), }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$title", { $literal: "Session Invalid Event 1779247562141", }, ], }, { $ne: [ "$title", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 22ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29ca300a97ec54f38fa9"), }, ], }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 27ms
+---
+Query: db.EventSession.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$eventId", { $literal: ObjectId("6a0d29ca300a97ec54f38fa9"), }, ], }, ], }, { $ne: [ "$eventId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, eventId: 1, }, }, ])
+Params: []
+Duration: 25ms
+---
+Query: db.Event.deleteMany({ _id: { $in: [ ObjectId("6a0d29ca300a97ec54f38fa9"), ], }, })
+Params: []
+Duration: 23ms
+---
+Query: db.User.aggregate([ { $match: { $expr: { $and: [ { $eq: [ "$_id", { $literal: ObjectId("6a0d29ca300a97ec54f38fa8"), }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, }, }, { $project: { _id: 1, }, }, ])
+Params: []
+Duration: 22ms
+---
+Query: db.Certificate.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$issuedByAdminId", { $literal: ObjectId("6a0d29ca300a97ec54f38fa8"), }, ], }, ], }, { $ne: [ "$issuedByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, issuedByAdminId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Attendance.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$markedByUserId", { $literal: ObjectId("6a0d29ca300a97ec54f38fa8"), }, ], }, ], }, { $ne: [ "$markedByUserId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, markedByUserId: 1, }, }, ])
+Params: []
+Duration: 25ms
+---
+Query: db.Registration.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$participantId", { $literal: ObjectId("6a0d29ca300a97ec54f38fa8"), }, ], }, ], }, { $ne: [ "$participantId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, participantId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.Event.aggregate([ { $match: { $expr: { $and: [ { }, { $and: [ { $or: [ { $eq: [ "$createdByAdminId", { $literal: ObjectId("6a0d29ca300a97ec54f38fa8"), }, ], }, ], }, { $ne: [ "$createdByAdminId", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, createdByAdminId: 1, }, }, ])
+Params: []
+Duration: 23ms
+---
+Query: db.User.deleteMany({ _id: { $in: [ ObjectId("6a0d29ca300a97ec54f38fa8"), ], }, })
+Params: []
+Duration: 23ms
+    Ô£ö POST /events/:eventId/sessions rejects invalid sessionDate strings (543ms)
+
+
+  12 passing (5s)
+

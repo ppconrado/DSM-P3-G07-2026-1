@@ -1,0 +1,34 @@
+{
+  "name": "express-app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon ./src/bin/server.js",
+    "start": "node ./src/bin/server.js",
+    "seed": "node ./scripts/seed.js",
+    "dedupe:registrations": "node ./scripts/dedupeRegistrations.js",
+    "dedupe:unique": "node ./scripts/dedupeUniqueKeys.js",
+    "smoke": "node ./scripts/smokeTests.js",
+    "test": "mocha --exit 'test/**/*.test.js'",
+    "test:watch": "mocha --watch --exit 'test/**/*.test.js'"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.12.0",
+    "bcryptjs": "^3.0.3",
+    "chalk": "^5.6.2",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.3.1",
+    "express": "^5.1.0",
+    "morgan": "^1.10.1",
+    "multer": "^2.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.0",
+    "mocha": "^10.2.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "prisma": "^6.12.0",
+    "supertest": "^6.3.3"
+  },
+  "type": "module"
+}
