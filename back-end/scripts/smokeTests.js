@@ -34,13 +34,6 @@ async function run() {
   const userList = asList(users);
   console.log('users count:', userList.length);
 
-  // 3. GET users, registrations, attendance, certificates
-  const usersRes = await fetch(`${base}/users`);
-  console.log('/users', usersRes.status);
-  const users = await usersRes.json();
-  const userList = asList(users);
-  console.log('users count:', userList.length);
-
   const registrationsRes = await fetch(`${base}/registrations`);
   console.log('/registrations', registrationsRes.status);
   const registrations = await registrationsRes.json();

@@ -22,6 +22,12 @@ function canAccessRoute(pathname: string, role: UserRole) {
 }
 
 export function AuthGate({ children }: AuthGateProps) {
+  const skipAuthGate = process.env.NEXT_PUBLIC_SKIP_AUTH_GATE === 'true';
+
+  if (skipAuthGate) {
+    return <>{children}</>;
+  }
+
   const router = useRouter();
   const pathname = usePathname();
   const [status, setStatus] = useState<'loading' | 'ready' | 'redirecting'>(

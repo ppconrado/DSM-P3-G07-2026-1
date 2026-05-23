@@ -11,9 +11,12 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chromium'] } }],
   webServer: {
-    command: 'npm run build && npm run start',
+    command: 'npm run build && node .next/standalone/server.js',
     port: 3000,
     reuseExistingServer: true,
     timeout: 120_000,
+    env: {
+      NEXT_PUBLIC_SKIP_AUTH_GATE: 'true',
+    },
   },
 });

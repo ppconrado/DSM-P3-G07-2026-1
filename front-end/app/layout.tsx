@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { CSSProperties } from 'react';
 import { Lato, Montserrat, Open_Sans, Roboto_Mono } from 'next/font/google';
 import './globals.css';
 import { site } from '@/lib/site';
@@ -36,6 +37,7 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       className={`${montserrat.variable} ${lato.variable} ${openSans.variable} ${robotoMono.variable}`}
+      style={{ '--admin-left-width': '390px' } as CSSProperties}
     >
       <body className="font-sans antialiased">
         <a
