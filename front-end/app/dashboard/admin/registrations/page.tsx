@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { formatDateOnlyUTC } from '@/lib/date';
 import { apiFetch } from '@/lib/api';
+import { useToast } from '@/components/ui/toast';
 import type { EventRecord, RegistrationRecord, UserRecord } from '@/lib/domain';
 
 function statusTone(status: RegistrationRecord['status']) {
@@ -30,6 +31,7 @@ function normalizeSearchText(value: string) {
 }
 
 function AdminRegistrationsPageContent() {
+  const { addToast } = useToast();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -92,6 +94,12 @@ function AdminRegistrationsPageContent() {
           loadError instanceof Error
             ? loadError.message
             : 'Erro ao carregar inscrições.',
+        );
+        addToast(
+          loadError instanceof Error
+            ? loadError.message
+            : 'Erro ao carregar inscrições.',
+          'error',
         );
       } finally {
         if (active) {

@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { apiFetch } from '@/lib/api';
+import { useToast } from '@/components/ui/toast';
 import type { UserRecord } from '@/lib/domain';
 
 function roleTone(role: UserRecord['role']) {
@@ -21,6 +22,7 @@ function roleTone(role: UserRecord['role']) {
 }
 
 function AdminUsersPageContent() {
+  const { addToast } = useToast();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -70,6 +72,12 @@ function AdminUsersPageContent() {
         loadError instanceof Error
           ? loadError.message
           : 'Erro ao carregar usuários.',
+      );
+      addToast(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Erro ao carregar usuários.',
+        'error',
       );
     } finally {
       setLoading(false);
@@ -130,12 +138,24 @@ function AdminUsersPageContent() {
           ? 'Usuário atualizado com sucesso.'
           : 'Usuário criado com sucesso.',
       );
+      addToast(
+        editingUserId
+          ? 'Usuário atualizado com sucesso.'
+          : 'Usuário criado com sucesso.',
+        'success',
+      );
       await loadUsers();
     } catch (submitError) {
       setFormError(
         submitError instanceof Error
           ? submitError.message
           : 'Erro ao salvar usuário.',
+      );
+      addToast(
+        submitError instanceof Error
+          ? submitError.message
+          : 'Erro ao salvar usuário.',
+        'error',
       );
     } finally {
       setSaving(false);
@@ -162,9 +182,11 @@ function AdminUsersPageContent() {
           json: { isActive: true },
         });
         setSuccessMessage('Usuário reativado com sucesso.');
+        addToast('Usuário reativado com sucesso.', 'success');
       } else {
         await apiFetch(`/users/${user.id}`, { method: 'DELETE' });
         setSuccessMessage('Usuário inativado com sucesso.');
+        addToast('Usuário inativado com sucesso.', 'success');
       }
 
       await loadUsers();
@@ -173,6 +195,12 @@ function AdminUsersPageContent() {
         toggleError instanceof Error
           ? toggleError.message
           : 'Erro ao atualizar usuário.',
+      );
+      addToast(
+        toggleError instanceof Error
+          ? toggleError.message
+          : 'Erro ao atualizar usuário.',
+        'error',
       );
     }
   }
@@ -262,89 +290,101 @@ function AdminUsersPageContent() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="grid gap-4" onSubmit={handleSubmit}>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Nome
-                <Input
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  required
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                E-mail
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  required
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Telefone
-                <Input
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Papel
-                <select
-                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
-                  value={role}
-                  onChange={(event) =>
-                    setRole(event.target.value as UserRecord['role'])
-                  }
-                >
-                  <option value="PARTICIPANTE">PARTICIPANTE</option>
-                  <option value="ADMIN">ADMIN</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                {editingUserId ? 'Nova senha (opcional)' : 'Senha'}
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  required={!editingUserId}
-                />
-              </label>
-
-              {formError ? (
-                <p
-                  className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
-                  role="alert"
-                >
-                  {formError}
-                </p>
-              ) : null}
-
-              {successMessage ? (
-                <p
-                  className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
-                  role="status"
-                  aria-live="polite"
-                >
-                  {successMessage}
-                </p>
-              ) : null}
-
-              <div className="flex flex-wrap gap-3">
-                <Button type="submit" disabled={saving}>
-                  <Plus className="h-4 w-4" />
-                  {saving
-                    ? 'Salvando...'
-                    : editingUserId
-                      ? 'Atualizar usuário'
-                      : 'Criar usuário'}
-                </Button>
-                {editingUserId ? (
-                  <Button type="button" variant="secondary" onClick={resetForm}>
-                    Cancelar
-                  </Button>
-                ) : null}
+            {loading ? (
+              <div className="space-y-3">
+                <div className="h-6 w-3/4 rounded bg-slate-200/60 animate-pulse" />
+                <div className="h-6 w-full rounded bg-slate-200/60 animate-pulse" />
+                <div className="h-6 w-1/2 rounded bg-slate-200/60 animate-pulse" />
               </div>
-            </form>
+            ) : (
+              <form className="grid gap-4" onSubmit={handleSubmit}>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Nome
+                  <Input
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    required
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  E-mail
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    required
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Telefone
+                  <Input
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Papel
+                  <select
+                    className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
+                    value={role}
+                    onChange={(event) =>
+                      setRole(event.target.value as UserRecord['role'])
+                    }
+                  >
+                    <option value="PARTICIPANTE">PARTICIPANTE</option>
+                    <option value="ADMIN">ADMIN</option>
+                  </select>
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  {editingUserId ? 'Nova senha (opcional)' : 'Senha'}
+                  <Input
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    required={!editingUserId}
+                  />
+                </label>
+
+                {formError ? (
+                  <p
+                    className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                    role="alert"
+                  >
+                    {formError}
+                  </p>
+                ) : null}
+
+                {successMessage ? (
+                  <p
+                    className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {successMessage}
+                  </p>
+                ) : null}
+
+                <div className="flex flex-wrap gap-3">
+                  <Button type="submit" disabled={saving}>
+                    <Plus className="h-4 w-4" />
+                    {saving
+                      ? 'Salvando...'
+                      : editingUserId
+                        ? 'Atualizar usuário'
+                        : 'Criar usuário'}
+                  </Button>
+                  {editingUserId ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={resetForm}
+                    >
+                      Cancelar
+                    </Button>
+                  ) : null}
+                </div>
+              </form>
+            )}
           </CardContent>
         </Card>
 

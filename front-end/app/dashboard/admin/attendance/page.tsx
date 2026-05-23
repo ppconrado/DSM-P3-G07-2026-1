@@ -16,6 +16,7 @@ import {
 import { formatDateOnlyUTC } from '@/lib/date';
 import { Input } from '@/components/ui/input';
 import { apiFetch } from '@/lib/api';
+import { useToast } from '@/components/ui/toast';
 import { fetchSession } from '@/lib/auth';
 import type {
   AttendanceRecord,
@@ -49,6 +50,7 @@ function normalizeSearchText(value: string) {
 }
 
 function AdminAttendancePageContent() {
+  const { addToast } = useToast();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -174,6 +176,12 @@ function AdminAttendancePageContent() {
         loadError instanceof Error
           ? loadError.message
           : 'Erro ao carregar presença.',
+      );
+      addToast(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Erro ao carregar presença.',
+        'error',
       );
     } finally {
       setLoading(false);
@@ -529,6 +537,12 @@ function AdminAttendancePageContent() {
           ? saveError.message
           : 'Erro ao concluir presenças.',
       );
+      addToast(
+        saveError instanceof Error
+          ? saveError.message
+          : 'Erro ao concluir presenças.',
+        'error',
+      );
     } finally {
       setSaving(false);
     }
@@ -611,6 +625,12 @@ function AdminAttendancePageContent() {
           ? saveError.message
           : 'Erro ao salvar presença.',
       );
+      addToast(
+        saveError instanceof Error
+          ? saveError.message
+          : 'Erro ao salvar presença.',
+        'error',
+      );
     } finally {
       setSaving(false);
     }
@@ -642,6 +662,12 @@ function AdminAttendancePageContent() {
         deleteError instanceof Error
           ? deleteError.message
           : 'Erro ao remover presença.',
+      );
+      addToast(
+        deleteError instanceof Error
+          ? deleteError.message
+          : 'Erro ao remover presença.',
+        'error',
       );
     }
   }

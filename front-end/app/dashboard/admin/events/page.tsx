@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { formatDateOnlyUTC } from '@/lib/date';
 import { apiFetch } from '@/lib/api';
+import { useToast } from '@/components/ui/toast';
 import { fetchSession } from '@/lib/auth';
 import type { EventRecord, SpeakerRecord } from '@/lib/domain';
 
@@ -32,6 +33,7 @@ function normalizeSearchText(value: string) {
 }
 
 function AdminEventsPageContent() {
+  const { addToast } = useToast();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -104,6 +106,12 @@ function AdminEventsPageContent() {
         loadError instanceof Error
           ? loadError.message
           : 'Erro ao carregar eventos.',
+      );
+      addToast(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Erro ao carregar eventos.',
+        'error',
       );
     } finally {
       setLoading(false);
@@ -192,12 +200,24 @@ function AdminEventsPageContent() {
           ? 'Evento atualizado com sucesso.'
           : 'Evento criado com sucesso.',
       );
+      addToast(
+        editingEventId
+          ? 'Evento atualizado com sucesso.'
+          : 'Evento criado com sucesso.',
+        'success',
+      );
       await loadData();
     } catch (submitError) {
       setFormError(
         submitError instanceof Error
           ? submitError.message
           : 'Erro ao salvar evento.',
+      );
+      addToast(
+        submitError instanceof Error
+          ? submitError.message
+          : 'Erro ao salvar evento.',
+        'error',
       );
     } finally {
       setSaving(false);
@@ -216,12 +236,19 @@ function AdminEventsPageContent() {
     try {
       await apiFetch(`/events/${eventId}`, { method: 'DELETE' });
       setSuccessMessage('Evento excluído com sucesso.');
+      addToast('Evento excluído com sucesso.', 'success');
       await loadData();
     } catch (deleteError) {
       setFormError(
         deleteError instanceof Error
           ? deleteError.message
           : 'Erro ao excluir evento.',
+      );
+      addToast(
+        deleteError instanceof Error
+          ? deleteError.message
+          : 'Erro ao excluir evento.',
+        'error',
       );
     }
   }
@@ -339,189 +366,203 @@ function AdminEventsPageContent() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="grid gap-4" onSubmit={handleSubmit}>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Título
-                <Input
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                  required
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Descrição
-                <Input
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                />
-              </label>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Início
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(event) => setStartDate(event.target.value)}
-                    required
-                  />
-                </label>
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Fim
-                  <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(event) => setEndDate(event.target.value)}
-                    required
-                  />
-                </label>
+            {loading ? (
+              <div className="space-y-3">
+                <div className="h-6 w-3/4 rounded bg-slate-200/60 animate-pulse" />
+                <div className="h-6 w-full rounded bg-slate-200/60 animate-pulse" />
+                <div className="h-6 w-1/2 rounded bg-slate-200/60 animate-pulse" />
               </div>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Local
-                <Input
-                  value={location}
-                  onChange={(event) => setLocation(event.target.value)}
-                  required
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Tipo
-                <Input
-                  value={type}
-                  onChange={(event) => setType(event.target.value)}
-                  required
-                />
-              </label>
-              <div className="grid gap-4 sm:grid-cols-2">
+            ) : (
+              <form className="grid gap-4" onSubmit={handleSubmit}>
                 <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Capacidade
+                  Título
                   <Input
-                    type="number"
-                    min="1"
-                    value={capacity}
-                    onChange={(event) => setCapacity(event.target.value)}
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
                     required
                   />
                 </label>
                 <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Percentual para certificado
+                  Descrição
                   <Input
-                    type="number"
-                    min="1"
-                    max="100"
-                    value={certificateRequiredPercent}
-                    onChange={(event) =>
-                      setCertificateRequiredPercent(event.target.value)
-                    }
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
                   />
                 </label>
-              </div>
-              {editingEventId ? (
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Status do evento
-                  <select
-                    className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
-                    value={status}
-                    onChange={(event) =>
-                      setStatus(event.target.value as EventRecord['status'])
-                    }
-                  >
-                    <option value="CRIANDO">CRIANDO</option>
-                    <option value="ATIVA">ATIVA</option>
-                    <option value="ENCERRADA">ENCERRADA</option>
-                    <option value="CANCELADA">CANCELADA</option>
-                  </select>
-                </label>
-              ) : null}
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Palestrantes do evento
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                  <p className="mb-3 text-xs text-slate-500">
-                    Selecione os palestrantes que participarão do evento.
-                  </p>
-                  <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
-                    {speakers.length === 0 ? (
-                      <p className="text-sm text-slate-500">
-                        Nenhum palestrante disponível.
-                      </p>
-                    ) : (
-                      speakers.map((speaker) => {
-                        const checked = selectedSpeakerIds.includes(speaker.id);
-
-                        return (
-                          <label
-                            key={speaker.id}
-                            className={`flex cursor-pointer gap-3 rounded-2xl border p-3 transition ${checked ? 'border-academy-primary bg-white shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}
-                          >
-                            <input
-                              type="checkbox"
-                              className="mt-1 h-4 w-4 rounded border-slate-300 text-academy-primary focus:ring-academy-primary"
-                              checked={checked}
-                              onChange={() =>
-                                toggleSpeakerSelection(speaker.id)
-                              }
-                            />
-                            <div className="min-w-0">
-                              <p className="font-semibold text-slate-800">
-                                {speaker.name}
-                              </p>
-                              <p className="text-xs text-slate-500">
-                                {speaker.email}
-                                {speaker.institution
-                                  ? ` · ${speaker.institution}`
-                                  : ''}
-                              </p>
-                              {speaker.bio ? (
-                                <p className="mt-1 text-xs text-slate-600">
-                                  {speaker.bio}
-                                </p>
-                              ) : null}
-                            </div>
-                          </label>
-                        );
-                      })
-                    )}
-                  </div>
-                  <p className="mt-3 text-xs text-slate-500">
-                    Selecionados: {selectedSpeakerIds.length}
-                  </p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="grid gap-2 text-sm font-medium text-slate-700">
+                    Início
+                    <Input
+                      type="date"
+                      value={startDate}
+                      onChange={(event) => setStartDate(event.target.value)}
+                      required
+                    />
+                  </label>
+                  <label className="grid gap-2 text-sm font-medium text-slate-700">
+                    Fim
+                    <Input
+                      type="date"
+                      value={endDate}
+                      onChange={(event) => setEndDate(event.target.value)}
+                      required
+                    />
+                  </label>
                 </div>
-              </label>
-
-              {formError ? (
-                <p
-                  className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
-                  role="alert"
-                >
-                  {formError}
-                </p>
-              ) : null}
-
-              {successMessage ? (
-                <p
-                  className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
-                  role="status"
-                  aria-live="polite"
-                >
-                  {successMessage}
-                </p>
-              ) : null}
-
-              <div className="flex flex-wrap gap-3">
-                <Button type="submit" disabled={saving || !createdByAdminId}>
-                  <Plus className="h-4 w-4" />
-                  {saving
-                    ? 'Salvando...'
-                    : editingEventId
-                      ? 'Atualizar evento'
-                      : 'Criar evento'}
-                </Button>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Local
+                  <Input
+                    value={location}
+                    onChange={(event) => setLocation(event.target.value)}
+                    required
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Tipo
+                  <Input
+                    value={type}
+                    onChange={(event) => setType(event.target.value)}
+                    required
+                  />
+                </label>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="grid gap-2 text-sm font-medium text-slate-700">
+                    Capacidade
+                    <Input
+                      type="number"
+                      min="1"
+                      value={capacity}
+                      onChange={(event) => setCapacity(event.target.value)}
+                      required
+                    />
+                  </label>
+                  <label className="grid gap-2 text-sm font-medium text-slate-700">
+                    Percentual para certificado
+                    <Input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={certificateRequiredPercent}
+                      onChange={(event) =>
+                        setCertificateRequiredPercent(event.target.value)
+                      }
+                    />
+                  </label>
+                </div>
                 {editingEventId ? (
-                  <Button type="button" variant="secondary" onClick={resetForm}>
-                    Cancelar
-                  </Button>
+                  <label className="grid gap-2 text-sm font-medium text-slate-700">
+                    Status do evento
+                    <select
+                      className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
+                      value={status}
+                      onChange={(event) =>
+                        setStatus(event.target.value as EventRecord['status'])
+                      }
+                    >
+                      <option value="CRIANDO">CRIANDO</option>
+                      <option value="ATIVA">ATIVA</option>
+                      <option value="ENCERRADA">ENCERRADA</option>
+                      <option value="CANCELADA">CANCELADA</option>
+                    </select>
+                  </label>
                 ) : null}
-              </div>
-            </form>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Palestrantes do evento
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="mb-3 text-xs text-slate-500">
+                      Selecione os palestrantes que participarão do evento.
+                    </p>
+                    <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
+                      {speakers.length === 0 ? (
+                        <p className="text-sm text-slate-500">
+                          Nenhum palestrante disponível.
+                        </p>
+                      ) : (
+                        speakers.map((speaker) => {
+                          const checked = selectedSpeakerIds.includes(
+                            speaker.id,
+                          );
+
+                          return (
+                            <label
+                              key={speaker.id}
+                              className={`flex cursor-pointer gap-3 rounded-2xl border p-3 transition ${checked ? 'border-academy-primary bg-white shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+                            >
+                              <input
+                                type="checkbox"
+                                className="mt-1 h-4 w-4 rounded border-slate-300 text-academy-primary focus:ring-academy-primary"
+                                checked={checked}
+                                onChange={() =>
+                                  toggleSpeakerSelection(speaker.id)
+                                }
+                              />
+                              <div className="min-w-0">
+                                <p className="font-semibold text-slate-800">
+                                  {speaker.name}
+                                </p>
+                                <p className="text-xs text-slate-500">
+                                  {speaker.email}
+                                  {speaker.institution
+                                    ? ` · ${speaker.institution}`
+                                    : ''}
+                                </p>
+                                {speaker.bio ? (
+                                  <p className="mt-1 text-xs text-slate-600">
+                                    {speaker.bio}
+                                  </p>
+                                ) : null}
+                              </div>
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
+                    <p className="mt-3 text-xs text-slate-500">
+                      Selecionados: {selectedSpeakerIds.length}
+                    </p>
+                  </div>
+                </label>
+
+                {formError ? (
+                  <p
+                    className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                    role="alert"
+                  >
+                    {formError}
+                  </p>
+                ) : null}
+
+                {successMessage ? (
+                  <p
+                    className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {successMessage}
+                  </p>
+                ) : null}
+
+                <div className="flex flex-wrap gap-3">
+                  <Button type="submit" disabled={saving || !createdByAdminId}>
+                    <Plus className="h-4 w-4" />
+                    {saving
+                      ? 'Salvando...'
+                      : editingEventId
+                        ? 'Atualizar evento'
+                        : 'Criar evento'}
+                  </Button>
+                  {editingEventId ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={resetForm}
+                    >
+                      Cancelar
+                    </Button>
+                  ) : null}
+                </div>
+              </form>
+            )}
           </CardContent>
         </Card>
 

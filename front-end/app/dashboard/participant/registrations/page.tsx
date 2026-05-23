@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { formatDateOnlyUTC } from '@/lib/date';
 import { apiFetch } from '@/lib/api';
 import { fetchSession, type AuthUser } from '@/lib/auth';
+import { useToast } from '@/components/ui/toast';
 import type {
   CertificateRecord,
   EventRecord,
@@ -77,6 +78,7 @@ function ParticipantRegistrationsPageContent() {
   const [dateFrom, setDateFrom] = useState(
     () => searchParams.get('from') ?? '',
   );
+  const { addToast } = useToast();
   const [dateTo, setDateTo] = useState(() => searchParams.get('to') ?? '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -107,6 +109,12 @@ function ParticipantRegistrationsPageContent() {
           loadError instanceof Error
             ? loadError.message
             : 'Erro ao carregar inscrições.',
+        );
+        addToast(
+          loadError instanceof Error
+            ? loadError.message
+            : 'Erro ao carregar inscrições.',
+          'error',
         );
       } finally {
         if (active) {

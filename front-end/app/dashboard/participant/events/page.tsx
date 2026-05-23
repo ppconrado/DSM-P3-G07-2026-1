@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { formatDateOnlyUTC } from '@/lib/date';
 import { apiFetch } from '@/lib/api';
 import { fetchSession } from '@/lib/auth';
+import { useToast } from '@/components/ui/toast';
 import type { EventRecord } from '@/lib/domain';
 
 function normalizeSearchText(value: string) {
@@ -61,8 +62,8 @@ function ParticipantEventsPageContent() {
   const [dateTo, setDateTo] = useState(() => searchParams.get('to') ?? '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [registeringFor, setRegisteringFor] = useState<string | null>(null);
+  const { addToast } = useToast();
 
   useEffect(() => {
     let active = true;
@@ -102,6 +103,12 @@ function ParticipantEventsPageContent() {
             ? loadError.message
             : 'Erro ao carregar eventos.',
         );
+        addToast(
+          loadError instanceof Error
+            ? loadError.message
+            : 'Erro ao carregar eventos.',
+          'error',
+        );
       } finally {
         if (active) {
           setLoading(false);
@@ -128,7 +135,7 @@ function ParticipantEventsPageContent() {
 
       // Optimistically update registered set and show feedback
       setRegisteredEventIds((prev) => new Set(prev).add(eventId));
-      setSuccessMessage('Inscrição realizada com sucesso.');
+      addToast('Inscrição realizada com sucesso.', 'success');
       // Optionally refresh events if something else changed server-side
       // const updated = await apiFetch<EventRecord[]>('/events');
       // setEvents(updated);
@@ -472,11 +479,7 @@ function ParticipantEventsPageContent() {
             </div>
           ))}
 
-          {successMessage ? (
-            <p className="rounded-2xl bg-emerald-50 px-4 py-3 text-emerald-700">
-              {successMessage}
-            </p>
-          ) : null}
+          {/* feedback via toasts */}
 
           {error ? (
             <p className="rounded-2xl bg-rose-50 px-4 py-3 text-rose-700">

@@ -16,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { formatDateOnlyUTC } from '@/lib/date';
 import { apiFetch } from '@/lib/api';
+import { useToast } from '@/components/ui/toast';
 import type { EventRecord, EventSessionRecord } from '@/lib/domain';
 
 function normalizeSearchText(value: string) {
@@ -26,6 +27,7 @@ function normalizeSearchText(value: string) {
 }
 
 function AdminSessionsPageContent() {
+  const { addToast } = useToast();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -142,6 +144,12 @@ function AdminSessionsPageContent() {
         if (!active) {
           return;
         }
+        addToast(
+          loadError instanceof Error
+            ? loadError.message
+            : 'Erro ao carregar sessões.',
+          'error',
+        );
       } finally {
         if (active) {
           setLoading(false);
@@ -208,6 +216,12 @@ function AdminSessionsPageContent() {
           ? submitError.message
           : 'Erro ao salvar sessão.',
       );
+      addToast(
+        submitError instanceof Error
+          ? submitError.message
+          : 'Erro ao salvar sessão.',
+        'error',
+      );
     } finally {
       setSaving(false);
     }
@@ -237,6 +251,12 @@ function AdminSessionsPageContent() {
         deleteError instanceof Error
           ? deleteError.message
           : 'Erro ao excluir sessão.',
+      );
+      addToast(
+        deleteError instanceof Error
+          ? deleteError.message
+          : 'Erro ao excluir sessão.',
+        'error',
       );
     }
   }

@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/card';
 import { formatDateOnlyUTC } from '@/lib/date';
 import { apiFetch } from '@/lib/api';
+import { useToast } from '@/components/ui/toast';
 import type {
   CertificateRecord,
   EventRecord,
@@ -35,6 +36,7 @@ function statusTone(status: EventRecord['status']) {
 }
 
 export default function AdminDashboardPage() {
+  const { addToast } = useToast();
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [speakers, setSpeakers] = useState<SpeakerRecord[]>([]);
@@ -76,6 +78,12 @@ export default function AdminDashboardPage() {
           loadError instanceof Error
             ? loadError.message
             : 'Erro ao carregar dashboard.',
+        );
+        addToast(
+          loadError instanceof Error
+            ? loadError.message
+            : 'Erro ao carregar dashboard.',
+          'error',
         );
       } finally {
         if (active) {

@@ -6,6 +6,7 @@ import { Shield, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AuthGate } from '@/components/layout/auth-gate';
+import ToastProvider from '@/components/ui/toast';
 import { LogoutButton } from '@/components/layout/logout-button';
 import { SideNav } from '@/components/layout/side-nav';
 import { fetchSession, type UserRole } from '@/lib/auth';
@@ -104,7 +105,9 @@ export function DashboardShell({
             </div>
           </Card>
 
-          <AuthGate>{children}</AuthGate>
+          <AuthGate>
+            <ToastProvider>{children}</ToastProvider>
+          </AuthGate>
         </main>
       </div>
     </div>

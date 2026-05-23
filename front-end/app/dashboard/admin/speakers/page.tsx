@@ -14,9 +14,11 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { apiFetch } from '@/lib/api';
+import { useToast } from '@/components/ui/toast';
 import type { EventRecord, SpeakerRecord } from '@/lib/domain';
 
 export default function AdminSpeakersPage() {
+  const { addToast } = useToast();
   const [speakers, setSpeakers] = useState<SpeakerRecord[]>([]);
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [editingSpeakerId, setEditingSpeakerId] = useState<string | null>(null);
@@ -58,6 +60,12 @@ export default function AdminSpeakersPage() {
         loadError instanceof Error
           ? loadError.message
           : 'Erro ao carregar palestrantes.',
+      );
+      addToast(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Erro ao carregar palestrantes.',
+        'error',
       );
     } finally {
       setLoading(false);
@@ -122,6 +130,12 @@ export default function AdminSpeakersPage() {
           ? 'Palestrante atualizado com sucesso.'
           : 'Palestrante criado com sucesso.',
       );
+      addToast(
+        isEditing
+          ? 'Palestrante atualizado com sucesso.'
+          : 'Palestrante criado com sucesso.',
+        'success',
+      );
       resetForm();
       await loadSpeakers();
     } catch (createError) {
@@ -129,6 +143,12 @@ export default function AdminSpeakersPage() {
         createError instanceof Error
           ? createError.message
           : 'Erro ao criar palestrante.',
+      );
+      addToast(
+        createError instanceof Error
+          ? createError.message
+          : 'Erro ao criar palestrante.',
+        'error',
       );
     } finally {
       setSaving(false);
@@ -149,12 +169,19 @@ export default function AdminSpeakersPage() {
     try {
       await apiFetch(`/speakers/${speakerId}`, { method: 'DELETE' });
       setSuccessMessage('Item removido com sucesso.');
+      addToast('Palestrante removido com sucesso.', 'success');
       await loadSpeakers();
     } catch (deleteError) {
       setFormError(
         deleteError instanceof Error
           ? deleteError.message
           : 'Erro ao excluir palestrante.',
+      );
+      addToast(
+        deleteError instanceof Error
+          ? deleteError.message
+          : 'Erro ao excluir palestrante.',
+        'error',
       );
     }
   }
@@ -185,130 +212,140 @@ export default function AdminSpeakersPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="grid gap-4" onSubmit={handleSubmitSpeaker}>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Nome
-                <Input
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  required
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                E-mail
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  required
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Instituição
-                <Input
-                  value={institution}
-                  onChange={(event) => setInstitution(event.target.value)}
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Telefone
-                <Input
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Bio
-                <Input
-                  value={bio}
-                  onChange={(event) => setBio(event.target.value)}
-                />
-              </label>
-              <div className="grid gap-2 text-sm font-medium text-slate-700">
-                Eventos do palestrante
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                  <p className="mb-3 text-xs text-slate-500">
-                    Selecione os eventos em que este palestrante participará.
-                  </p>
-                  <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-                    {events.length === 0 ? (
-                      <p className="text-sm text-slate-500">
-                        Nenhum evento disponível.
-                      </p>
-                    ) : (
-                      events.map((eventItem) => {
-                        const checked = selectedEventIds.includes(eventItem.id);
-
-                        return (
-                          <label
-                            key={eventItem.id}
-                            className={`flex cursor-pointer gap-3 rounded-2xl border p-3 transition ${checked ? 'border-academy-primary bg-white shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}
-                          >
-                            <input
-                              type="checkbox"
-                              className="mt-1 h-4 w-4 rounded border-slate-300 text-academy-primary focus:ring-academy-primary"
-                              checked={checked}
-                              onChange={() =>
-                                toggleEventSelection(eventItem.id)
-                              }
-                            />
-                            <div className="min-w-0">
-                              <p className="font-semibold text-slate-800">
-                                {eventItem.title}
-                              </p>
-                              <p className="text-xs text-slate-500">
-                                {eventItem.location} · {eventItem.type}
-                              </p>
-                              <p className="text-xs text-slate-500">
-                                {formatDateOnlyUTC(eventItem.startDate)} até{' '}
-                                {formatDateOnlyUTC(eventItem.endDate)}
-                              </p>
-                            </div>
-                          </label>
-                        );
-                      })
-                    )}
-                  </div>
-                  <p className="mt-3 text-xs text-slate-500">
-                    Selecionados: {selectedEventIds.length}
-                  </p>
-                </div>
+            {loading ? (
+              <div className="space-y-3">
+                <div className="h-6 w-3/4 rounded bg-slate-200/60 animate-pulse" />
+                <div className="h-6 w-full rounded bg-slate-200/60 animate-pulse" />
+                <div className="h-6 w-1/2 rounded bg-slate-200/60 animate-pulse" />
               </div>
+            ) : (
+              <form className="grid gap-4" onSubmit={handleSubmitSpeaker}>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Nome
+                  <Input
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    required
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  E-mail
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    required
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Instituição
+                  <Input
+                    value={institution}
+                    onChange={(event) => setInstitution(event.target.value)}
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Telefone
+                  <Input
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Bio
+                  <Input
+                    value={bio}
+                    onChange={(event) => setBio(event.target.value)}
+                  />
+                </label>
+                <div className="grid gap-2 text-sm font-medium text-slate-700">
+                  Eventos do palestrante
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="mb-3 text-xs text-slate-500">
+                      Selecione os eventos em que este palestrante participará.
+                    </p>
+                    <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
+                      {events.length === 0 ? (
+                        <p className="text-sm text-slate-500">
+                          Nenhum evento disponível.
+                        </p>
+                      ) : (
+                        events.map((eventItem) => {
+                          const checked = selectedEventIds.includes(
+                            eventItem.id,
+                          );
 
-              {formError ? (
-                <p
-                  className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
-                  role="alert"
-                >
-                  {formError}
-                </p>
-              ) : null}
+                          return (
+                            <label
+                              key={eventItem.id}
+                              className={`flex cursor-pointer gap-3 rounded-2xl border p-3 transition ${checked ? 'border-academy-primary bg-white shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+                            >
+                              <input
+                                type="checkbox"
+                                className="mt-1 h-4 w-4 rounded border-slate-300 text-academy-primary focus:ring-academy-primary"
+                                checked={checked}
+                                onChange={() =>
+                                  toggleEventSelection(eventItem.id)
+                                }
+                              />
+                              <div className="min-w-0">
+                                <p className="font-semibold text-slate-800">
+                                  {eventItem.title}
+                                </p>
+                                <p className="text-xs text-slate-500">
+                                  {eventItem.location} · {eventItem.type}
+                                </p>
+                                <p className="text-xs text-slate-500">
+                                  {formatDateOnlyUTC(eventItem.startDate)} até{' '}
+                                  {formatDateOnlyUTC(eventItem.endDate)}
+                                </p>
+                              </div>
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
+                    <p className="mt-3 text-xs text-slate-500">
+                      Selecionados: {selectedEventIds.length}
+                    </p>
+                  </div>
+                </div>
 
-              {successMessage ? (
-                <p
-                  className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
-                  role="status"
-                  aria-live="polite"
-                >
-                  {successMessage}
-                </p>
-              ) : null}
+                {formError ? (
+                  <p
+                    className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                    role="alert"
+                  >
+                    {formError}
+                  </p>
+                ) : null}
 
-              <Button type="submit" disabled={saving}>
-                <Plus className="h-4 w-4" />
-                {saving
-                  ? 'Salvando...'
-                  : editingSpeakerId
-                    ? 'Atualizar palestrante'
-                    : 'Criar palestrante'}
-              </Button>
-              {editingSpeakerId ? (
-                <Button type="button" variant="secondary" onClick={resetForm}>
-                  <X className="h-4 w-4" />
-                  Cancelar
+                {successMessage ? (
+                  <p
+                    className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {successMessage}
+                  </p>
+                ) : null}
+
+                <Button type="submit" disabled={saving}>
+                  <Plus className="h-4 w-4" />
+                  {saving
+                    ? 'Salvando...'
+                    : editingSpeakerId
+                      ? 'Atualizar palestrante'
+                      : 'Criar palestrante'}
                 </Button>
-              ) : null}
-            </form>
+                {editingSpeakerId ? (
+                  <Button type="button" variant="secondary" onClick={resetForm}>
+                    <X className="h-4 w-4" />
+                    Cancelar
+                  </Button>
+                ) : null}
+              </form>
+            )}
           </CardContent>
         </Card>
 

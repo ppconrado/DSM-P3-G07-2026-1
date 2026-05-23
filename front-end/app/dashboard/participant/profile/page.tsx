@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/card';
 import { apiFetch } from '@/lib/api';
 import { fetchSession, type AuthUser } from '@/lib/auth';
+import { useToast } from '@/components/ui/toast';
 
 export default function ParticipantProfilePage() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -25,6 +26,7 @@ export default function ParticipantProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const { addToast } = useToast();
 
   useEffect(() => {
     let active = true;
@@ -42,11 +44,12 @@ export default function ParticipantProfilePage() {
       } catch (loadError) {
         if (!active) return;
 
-        setError(
+        const msg =
           loadError instanceof Error
             ? loadError.message
-            : 'Erro ao carregar perfil.',
-        );
+            : 'Erro ao carregar perfil.';
+        setError(msg);
+        addToast(msg, 'error');
       } finally {
         if (active) {
           setLoading(false);
@@ -88,11 +91,18 @@ export default function ParticipantProfilePage() {
       setEmail(session.user.email);
       setPhone(session.user.phone ?? '');
       setPassword('');
+      addToast('Perfil atualizado com sucesso.', 'success');
     } catch (submitError) {
       setSaveError(
         submitError instanceof Error
           ? submitError.message
           : 'Erro ao atualizar perfil.',
+      );
+      addToast(
+        submitError instanceof Error
+          ? submitError.message
+          : 'Erro ao atualizar perfil.',
+        'error',
       );
     } finally {
       setSaving(false);

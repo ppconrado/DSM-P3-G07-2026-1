@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { formatDateOnlyUTC } from '@/lib/date';
 import { apiFetch } from '@/lib/api';
 import { fetchSession, type AuthUser } from '@/lib/auth';
+import { useToast } from '@/components/ui/toast';
 import type {
   CertificateRecord,
   EventRecord,
@@ -49,6 +50,7 @@ function ParticipantCertificatesPageContent() {
   const [dateTo, setDateTo] = useState(() => searchParams.get('to') ?? '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { addToast } = useToast();
 
   useEffect(() => {
     let active = true;
@@ -76,6 +78,12 @@ function ParticipantCertificatesPageContent() {
           loadError instanceof Error
             ? loadError.message
             : 'Erro ao carregar certificados.',
+        );
+        addToast(
+          loadError instanceof Error
+            ? loadError.message
+            : 'Erro ao carregar certificados.',
+          'error',
         );
       } finally {
         if (active) {

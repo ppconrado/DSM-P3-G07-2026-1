@@ -15,6 +15,7 @@ import {
 import { formatDateOnlyUTC } from '@/lib/date';
 import { Input } from '@/components/ui/input';
 import { apiFetch, API_BASE_URL, extractErrorMessage } from '@/lib/api';
+import { useToast } from '@/components/ui/toast';
 import { fetchSession } from '@/lib/auth';
 import type {
   CertificateRecord,
@@ -34,6 +35,7 @@ function AdminCertificatesPageContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { addToast } = useToast();
 
   const [certificates, setCertificates] = useState<CertificateRecord[]>([]);
   const [registrations, setRegistrations] = useState<RegistrationRecord[]>([]);
@@ -113,6 +115,12 @@ function AdminCertificatesPageContent() {
         loadError instanceof Error
           ? loadError.message
           : 'Erro ao carregar certificados.',
+      );
+      addToast(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Erro ao carregar certificados.',
+        'error',
       );
     } finally {
       setLoading(false);
@@ -199,6 +207,12 @@ function AdminCertificatesPageContent() {
           ? uploadError.message
           : 'Erro ao enviar o PDF.',
       );
+      addToast(
+        uploadError instanceof Error
+          ? uploadError.message
+          : 'Erro ao enviar o PDF.',
+        'error',
+      );
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -227,12 +241,19 @@ function AdminCertificatesPageContent() {
 
       resetForm();
       setSuccessMessage('Certificado emitido com sucesso.');
+      addToast('Certificado emitido com sucesso.', 'success');
       await loadData();
     } catch (createError) {
       setFormError(
         createError instanceof Error
           ? createError.message
           : 'Erro ao emitir certificado.',
+      );
+      addToast(
+        createError instanceof Error
+          ? createError.message
+          : 'Erro ao emitir certificado.',
+        'error',
       );
     } finally {
       setSaving(false);
@@ -255,12 +276,19 @@ function AdminCertificatesPageContent() {
     try {
       await apiFetch(`/certificates/${certificateId}`, { method: 'DELETE' });
       setSuccessMessage('Certificado excluído com sucesso.');
+      addToast('Certificado excluído com sucesso.', 'success');
       await loadData();
     } catch (deleteError) {
       setFormError(
         deleteError instanceof Error
           ? deleteError.message
           : 'Erro ao excluir certificado.',
+      );
+      addToast(
+        deleteError instanceof Error
+          ? deleteError.message
+          : 'Erro ao excluir certificado.',
+        'error',
       );
     }
   }
@@ -591,306 +619,315 @@ function AdminCertificatesPageContent() {
             </CardDescription>
           </CardHeader>
           <CardContent className="min-w-0">
-            <form
-              className="grid min-w-0 gap-4"
-              onSubmit={handleCreateCertificate}
-            >
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Buscar inscrição para emissão
-                <Input
-                  value={registrationSearchTerm}
-                  onChange={(event) =>
-                    setRegistrationSearchTerm(event.target.value)
-                  }
-                  placeholder="Participante, e-mail, evento, local ou status"
-                />
-              </label>
+            {loading ? (
+              <div className="space-y-3">
+                <div className="h-6 w-3/4 rounded bg-slate-200/60 animate-pulse" />
+                <div className="h-6 w-full rounded bg-slate-200/60 animate-pulse" />
+                <div className="h-6 w-1/2 rounded bg-slate-200/60 animate-pulse" />
+              </div>
+            ) : (
+              <form
+                className="grid min-w-0 gap-4"
+                onSubmit={handleCreateCertificate}
+              >
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Buscar inscrição para emissão
+                  <Input
+                    value={registrationSearchTerm}
+                    onChange={(event) =>
+                      setRegistrationSearchTerm(event.target.value)
+                    }
+                    placeholder="Participante, e-mail, evento, local ou status"
+                  />
+                </label>
 
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Evento da inscrição
-                <select
-                  className="h-11 w-full max-w-full truncate rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
-                  value={registrationEventFilter}
-                  onChange={(event) =>
-                    setRegistrationEventFilter(event.target.value)
-                  }
-                >
-                  <option value="all">Todos os eventos</option>
-                  {availableEvents.map((event) => (
-                    <option key={event.id} value={event.id}>
-                      {event.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Evento da inscrição
+                  <select
+                    className="h-11 w-full max-w-full truncate rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
+                    value={registrationEventFilter}
+                    onChange={(event) =>
+                      setRegistrationEventFilter(event.target.value)
+                    }
+                  >
+                    <option value="all">Todos os eventos</option>
+                    {availableEvents.map((event) => (
+                      <option key={event.id} value={event.id}>
+                        {event.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  variant={
-                    registrationEligibilityFilter === 'all'
-                      ? 'default'
-                      : 'secondary'
-                  }
-                  size="sm"
-                  onClick={() => setRegistrationEligibilityFilter('all')}
-                >
-                  Todas inscrições
-                </Button>
-                <Button
-                  type="button"
-                  variant={
-                    registrationEligibilityFilter === 'eligible'
-                      ? 'default'
-                      : 'secondary'
-                  }
-                  size="sm"
-                  onClick={() => setRegistrationEligibilityFilter('eligible')}
-                >
-                  Aptas para certificado
-                </Button>
-                <Button
-                  type="button"
-                  variant={
-                    registrationEligibilityFilter === 'pending'
-                      ? 'default'
-                      : 'secondary'
-                  }
-                  size="sm"
-                  onClick={() => setRegistrationEligibilityFilter('pending')}
-                >
-                  Não aptas
-                </Button>
-
-                {hasActiveRegistrationFilters ? (
+                <div className="flex flex-wrap gap-2">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={
+                      registrationEligibilityFilter === 'all'
+                        ? 'default'
+                        : 'secondary'
+                    }
                     size="sm"
-                    onClick={() => {
-                      setRegistrationSearchTerm('');
-                      setRegistrationEligibilityFilter('all');
-                      setRegistrationEventFilter('all');
-                    }}
+                    onClick={() => setRegistrationEligibilityFilter('all')}
                   >
-                    Limpar filtros
+                    Todas inscrições
                   </Button>
-                ) : null}
-              </div>
-
-              <p className="text-xs text-slate-500">
-                Recomendações prontas para emitir:{' '}
-                {recommendedRegistrationCount}
-              </p>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Inscrição
-                <select
-                  className="h-11 w-full max-w-full truncate rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
-                  value={registrationId}
-                  onChange={(event) => setRegistrationId(event.target.value)}
-                  required
-                >
-                  <option value="">Selecione a inscrição</option>
-                  {selectableRegistrationCandidates.map(
-                    ({ registration, user, event, hasCertificate }) => (
-                      <option
-                        key={registration.id}
-                        value={registration.id}
-                        disabled={hasCertificate}
-                      >
-                        {(registration.approvedForCertificate && !hasCertificate
-                          ? '★ '
-                          : '') +
-                          (user?.name ?? 'Participante sem nome') +
-                          ' · ' +
-                          (event?.title ?? 'Evento') +
-                          ' · ' +
-                          registration.attendancePercent.toFixed(0) +
-                          '%' +
-                          (hasCertificate ? ' · Já emitido' : '')}
-                      </option>
-                    ),
-                  )}
-                </select>
-              </label>
-
-              {selectedRegistrationContext ? (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
-                  <p className="font-semibold text-slate-700">
-                    Resumo da inscrição selecionada
-                  </p>
-                  <p className="mt-1">
-                    Participante:{' '}
-                    {selectedRegistrationContext.user?.name ??
-                      selectedRegistrationContext.registration.participantId}
-                  </p>
-                  <p>
-                    Evento:{' '}
-                    {selectedRegistrationContext.event?.title ??
-                      selectedRegistrationContext.registration.eventId}
-                  </p>
-                  <p>
-                    Presença:{' '}
-                    {selectedRegistrationContext.registration.attendancePercent.toFixed(
-                      0,
-                    )}
-                    % ·{' '}
-                    {selectedRegistrationContext.registration
-                      .approvedForCertificate
-                      ? 'Apto para certificado'
-                      : 'Não apto'}
-                  </p>
-                  <p>
-                    Status da inscrição:{' '}
-                    {selectedRegistrationContext.registration.status}
-                  </p>
-                </div>
-              ) : null}
-
-              {filteredRegistrationCandidates.length === 0 ? (
-                <p className="text-xs text-slate-500">
-                  Nenhuma inscrição corresponde aos filtros atuais.
-                </p>
-              ) : null}
-
-              {selectableRegistrationCandidates.length > 0 &&
-              selectableRegistrationCandidates.every(
-                ({ hasCertificate }) => hasCertificate,
-              ) ? (
-                <p className="text-xs text-slate-500">
-                  As inscrições listadas já possuem certificado emitido.
-                </p>
-              ) : null}
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                PDF local
-                <Input
-                  id="certificate-pdf-upload"
-                  type="file"
-                  accept="application/pdf"
-                  aria-describedby="certificate-pdf-help certificate-pdf-status"
-                  onChange={(event) => {
-                    setPdfFile(event.target.files?.[0] ?? null);
-                    setPdfUrl('');
-                    setFormError(null);
-                    setSuccessMessage(null);
-                  }}
-                />
-              </label>
-
-              <p id="certificate-pdf-help" className="text-xs text-slate-500">
-                Selecione um arquivo PDF antes de enviar para emissão.
-              </p>
-
-              {pdfFile ? (
-                <p className="text-xs text-slate-500">
-                  Arquivo selecionado:{' '}
-                  <span className="font-medium text-slate-700">
-                    {pdfFile.name}
-                  </span>
-                </p>
-              ) : null}
-
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleUploadPdf}
-                disabled={uploading || !pdfFile || Boolean(pdfUrl)}
-              >
-                <Upload className="h-4 w-4" />
-                {uploading
-                  ? 'Enviando PDF...'
-                  : pdfUrl
-                    ? 'PDF enviado'
-                    : 'Enviar PDF'}
-              </Button>
-
-              {uploading ? (
-                <div className="mt-2">
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className="h-2 rounded-full bg-academy-primary transition-all"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                  <p className="mt-1 text-xs text-slate-600">
-                    Progresso: {uploadProgress}%
-                  </p>
-                </div>
-              ) : null}
-
-              {pdfUrl ? (
-                <div className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                  <p className="font-medium">PDF pronto para emissão.</p>
-                  <a
-                    href={pdfUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-1 inline-block font-semibold underline underline-offset-2"
+                  <Button
+                    type="button"
+                    variant={
+                      registrationEligibilityFilter === 'eligible'
+                        ? 'default'
+                        : 'secondary'
+                    }
+                    size="sm"
+                    onClick={() => setRegistrationEligibilityFilter('eligible')}
                   >
-                    Abrir arquivo enviado
-                  </a>
+                    Aptas para certificado
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={
+                      registrationEligibilityFilter === 'pending'
+                        ? 'default'
+                        : 'secondary'
+                    }
+                    size="sm"
+                    onClick={() => setRegistrationEligibilityFilter('pending')}
+                  >
+                    Não aptas
+                  </Button>
+
+                  {hasActiveRegistrationFilters ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setRegistrationSearchTerm('');
+                        setRegistrationEligibilityFilter('all');
+                        setRegistrationEventFilter('all');
+                      }}
+                    >
+                      Limpar filtros
+                    </Button>
+                  ) : null}
                 </div>
-              ) : null}
 
-              <div
-                id="certificate-pdf-status"
-                className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600"
-                aria-live="polite"
-              >
-                <p className="font-medium text-slate-700">URL do PDF</p>
-                <p className="mt-1 break-all">
-                  {pdfUrl || 'Será preenchida automaticamente após o upload.'}
+                <p className="text-xs text-slate-500">
+                  Recomendações prontas para emitir:{' '}
+                  {recommendedRegistrationCount}
                 </p>
-              </div>
 
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Data de emissão
-                <Input
-                  type="date"
-                  value={issueDate}
-                  onChange={(event) => setIssueDate(event.target.value)}
-                />
-              </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Inscrição
+                  <select
+                    className="h-11 w-full max-w-full truncate rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
+                    value={registrationId}
+                    onChange={(event) => setRegistrationId(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecione a inscrição</option>
+                    {selectableRegistrationCandidates.map(
+                      ({ registration, user, event, hasCertificate }) => (
+                        <option
+                          key={registration.id}
+                          value={registration.id}
+                          disabled={hasCertificate}
+                        >
+                          {(registration.approvedForCertificate &&
+                          !hasCertificate
+                            ? '★ '
+                            : '') +
+                            (user?.name ?? 'Participante sem nome') +
+                            ' · ' +
+                            (event?.title ?? 'Evento') +
+                            ' · ' +
+                            registration.attendancePercent.toFixed(0) +
+                            '%' +
+                            (hasCertificate ? ' · Já emitido' : '')}
+                        </option>
+                      ),
+                    )}
+                  </select>
+                </label>
 
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                Validade até
-                <Input
-                  type="date"
-                  value={expiresAt}
-                  onChange={(event) => setExpiresAt(event.target.value)}
-                />
-              </label>
+                {selectedRegistrationContext ? (
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+                    <p className="font-semibold text-slate-700">
+                      Resumo da inscrição selecionada
+                    </p>
+                    <p className="mt-1">
+                      Participante:{' '}
+                      {selectedRegistrationContext.user?.name ??
+                        selectedRegistrationContext.registration.participantId}
+                    </p>
+                    <p>
+                      Evento:{' '}
+                      {selectedRegistrationContext.event?.title ??
+                        selectedRegistrationContext.registration.eventId}
+                    </p>
+                    <p>
+                      Presença:{' '}
+                      {selectedRegistrationContext.registration.attendancePercent.toFixed(
+                        0,
+                      )}
+                      % ·{' '}
+                      {selectedRegistrationContext.registration
+                        .approvedForCertificate
+                        ? 'Apto para certificado'
+                        : 'Não apto'}
+                    </p>
+                    <p>
+                      Status da inscrição:{' '}
+                      {selectedRegistrationContext.registration.status}
+                    </p>
+                  </div>
+                ) : null}
 
-              {formError ? (
-                <p
-                  className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
-                  role="alert"
+                {filteredRegistrationCandidates.length === 0 ? (
+                  <p className="text-xs text-slate-500">
+                    Nenhuma inscrição corresponde aos filtros atuais.
+                  </p>
+                ) : null}
+
+                {selectableRegistrationCandidates.length > 0 &&
+                selectableRegistrationCandidates.every(
+                  ({ hasCertificate }) => hasCertificate,
+                ) ? (
+                  <p className="text-xs text-slate-500">
+                    As inscrições listadas já possuem certificado emitido.
+                  </p>
+                ) : null}
+
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  PDF local
+                  <Input
+                    id="certificate-pdf-upload"
+                    type="file"
+                    accept="application/pdf"
+                    aria-describedby="certificate-pdf-help certificate-pdf-status"
+                    onChange={(event) => {
+                      setPdfFile(event.target.files?.[0] ?? null);
+                      setPdfUrl('');
+                      setFormError(null);
+                      setSuccessMessage(null);
+                    }}
+                  />
+                </label>
+
+                <p id="certificate-pdf-help" className="text-xs text-slate-500">
+                  Selecione um arquivo PDF antes de enviar para emissão.
+                </p>
+
+                {pdfFile ? (
+                  <p className="text-xs text-slate-500">
+                    Arquivo selecionado:{' '}
+                    <span className="font-medium text-slate-700">
+                      {pdfFile.name}
+                    </span>
+                  </p>
+                ) : null}
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleUploadPdf}
+                  disabled={uploading || !pdfFile || Boolean(pdfUrl)}
                 >
-                  {formError}
-                </p>
-              ) : null}
+                  <Upload className="h-4 w-4" />
+                  {uploading
+                    ? 'Enviando PDF...'
+                    : pdfUrl
+                      ? 'PDF enviado'
+                      : 'Enviar PDF'}
+                </Button>
 
-              {successMessage ? (
-                <p
-                  className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
-                  role="status"
+                {uploading ? (
+                  <div className="mt-2">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className="h-2 rounded-full bg-academy-primary transition-all"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-slate-600">
+                      Progresso: {uploadProgress}%
+                    </p>
+                  </div>
+                ) : null}
+
+                {pdfUrl ? (
+                  <div className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                    <p className="font-medium">PDF pronto para emissão.</p>
+                    <a
+                      href={pdfUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-1 inline-block font-semibold underline underline-offset-2"
+                    >
+                      Abrir arquivo enviado
+                    </a>
+                  </div>
+                ) : null}
+
+                <div
+                  id="certificate-pdf-status"
+                  className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600"
                   aria-live="polite"
                 >
-                  {successMessage}
-                </p>
-              ) : null}
+                  <p className="font-medium text-slate-700">URL do PDF</p>
+                  <p className="mt-1 break-all">
+                    {pdfUrl || 'Será preenchida automaticamente após o upload.'}
+                  </p>
+                </div>
 
-              <Button
-                type="submit"
-                disabled={saving || !adminUserId || !pdfUrl}
-                aria-describedby="certificate-pdf-help"
-              >
-                <Plus className="h-4 w-4" />
-                {saving ? 'Emitindo...' : 'Emitir certificado'}
-              </Button>
-            </form>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Data de emissão
+                  <Input
+                    type="date"
+                    value={issueDate}
+                    onChange={(event) => setIssueDate(event.target.value)}
+                  />
+                </label>
+
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  Validade até
+                  <Input
+                    type="date"
+                    value={expiresAt}
+                    onChange={(event) => setExpiresAt(event.target.value)}
+                  />
+                </label>
+
+                {formError ? (
+                  <p
+                    className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                    role="alert"
+                  >
+                    {formError}
+                  </p>
+                ) : null}
+
+                {successMessage ? (
+                  <p
+                    className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {successMessage}
+                  </p>
+                ) : null}
+
+                <Button
+                  type="submit"
+                  disabled={saving || !adminUserId || !pdfUrl}
+                  aria-describedby="certificate-pdf-help"
+                >
+                  <Plus className="h-4 w-4" />
+                  {saving ? 'Emitindo...' : 'Emitir certificado'}
+                </Button>
+              </form>
+            )}
           </CardContent>
         </Card>
 
