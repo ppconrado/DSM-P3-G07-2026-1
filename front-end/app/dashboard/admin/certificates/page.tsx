@@ -254,6 +254,7 @@ function AdminCertificatesPageContent() {
 
     try {
       await apiFetch(`/certificates/${certificateId}`, { method: 'DELETE' });
+      setSuccessMessage('Certificado excluído com sucesso.');
       await loadData();
     } catch (deleteError) {
       setFormError(

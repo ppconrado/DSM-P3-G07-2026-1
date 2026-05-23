@@ -119,5 +119,15 @@ export async function apiFetch<T>(
     throw new Error(extractErrorMessage(message, response.status));
   }
 
-  return normalizeApiValue((await response.json()) as T);
+  if (response.status === 204 || response.status === 205) {
+    return undefined as T;
+  }
+
+  const responseText = await response.text();
+
+  if (!responseText.trim()) {
+    return undefined as T;
+  }
+
+  return normalizeApiValue(JSON.parse(responseText) as T);
 }
