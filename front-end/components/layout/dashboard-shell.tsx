@@ -55,6 +55,7 @@ export function DashboardShell({
 
   const showParticipantAreaButton = !isParticipantDashboard;
   const showAdminReturnButton = isParticipantDashboard && userRole === 'ADMIN';
+  const reserveAdminReturnButtonSpace = isParticipantDashboard;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f5f7fa_0%,#edf3f9_100%)] text-academy-text">
@@ -73,7 +74,7 @@ export function DashboardShell({
               <p className="mt-1 text-sm text-slate-500">{description}</p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 sm:justify-end">
               {showParticipantAreaButton ? (
                 <Button variant="secondary" asChild>
                   <Link href="/dashboard/participant">
@@ -82,13 +83,22 @@ export function DashboardShell({
                   </Link>
                 </Button>
               ) : null}
-              {showAdminReturnButton ? (
-                <Button variant="secondary" asChild>
-                  <Link href="/dashboard/admin">
-                    <Shield className="h-4 w-4" />
-                    Área do admin
-                  </Link>
-                </Button>
+              {reserveAdminReturnButtonSpace ? (
+                <div className="min-w-[10.75rem]">
+                  {showAdminReturnButton ? (
+                    <Button variant="secondary" asChild className="w-full">
+                      <Link href="/dashboard/admin">
+                        <Shield className="h-4 w-4" />
+                        Área do admin
+                      </Link>
+                    </Button>
+                  ) : (
+                    <div
+                      aria-hidden="true"
+                      className="h-11 rounded-2xl border border-transparent"
+                    />
+                  )}
+                </div>
               ) : null}
               <LogoutButton />
             </div>

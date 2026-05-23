@@ -65,16 +65,25 @@ export function AuthGate({ children }: AuthGateProps) {
     };
   }, [pathname, router]);
 
-  if (status !== 'ready') {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white/80">
-        <div className="flex items-center gap-3 text-sm text-slate-500">
-          <Loader2 className="h-4 w-4 animate-spin text-academy-primary" />
-          Validando sessão...
-        </div>
+  return (
+    <div className="relative">
+      <div
+        aria-hidden={status !== 'ready'}
+        className={
+          status === 'ready' ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }
+      >
+        {children}
       </div>
-    );
-  }
 
-  return <>{children}</>;
+      {status !== 'ready' ? (
+        <div className="absolute inset-0 flex min-h-[40vh] items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white/80">
+          <div className="flex items-center gap-3 text-sm text-slate-500">
+            <Loader2 className="h-4 w-4 animate-spin text-academy-primary" />
+            Validando sessão...
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 }
