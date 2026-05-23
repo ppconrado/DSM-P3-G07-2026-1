@@ -17,14 +17,14 @@ const upload = getUpload();
 // Roteador para certificados
 const router = express.Router();
 
+// Rota para upload de certificado PDF
+router.post('/upload', upload.single('pdf'), uploadCertificatePdf);
+
 // Rotas para operações CRUD de certificados
 router.get('/', getAllCertificates);
 router.post('/', createCertificate);
 router.get('/:id', getCertificateById);
 router.put('/:id', updateCertificate);
 router.delete('/:id', deleteCertificate);
-
-// Rota para upload de certificado PDF
-router.post('/upload', upload.single('pdf'), uploadCertificatePdf);
 
 export default router; // Exporta o roteador para ser usado em outras partes da aplicação

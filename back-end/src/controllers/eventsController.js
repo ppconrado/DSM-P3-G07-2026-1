@@ -4,6 +4,63 @@ import {
   unwrapMongoAggregationBatch,
 } from '../services/mongoAggregationService.js';
 
+function mergeUniqueIds(...lists) {
+  return [...new Set(lists.flat().filter(Boolean))];
+}
+
+async function getAllSpeakersRaw() {
+  const speakers = await prisma.$runCommandRaw({
+    aggregate: 'Speaker',
+    pipeline: [{ $match: {} }],
+    cursor: {},
+  });
+
+  return normalizeMongoResponse(unwrapMongoAggregationBatch(speakers));
+}
+
+async function getLinkedSpeakerIds(eventId) {
+  const speakers = await getAllSpeakersRaw();
+
+  return speakers
+    .filter((speaker) => (speaker.eventIds ?? []).includes(eventId))
+    .map((speaker) => speaker.id);
+}
+
+async function syncSpeakerLinks(eventId, previousSpeakerIds, nextSpeakerIds) {
+  const removed = previousSpeakerIds.filter(
+    (speakerId) => !nextSpeakerIds.includes(speakerId),
+  );
+  const added = nextSpeakerIds.filter(
+    (speakerId) => !previousSpeakerIds.includes(speakerId),
+  );
+
+  for (const speakerId of removed) {
+    await prisma.$runCommandRaw({
+      update: 'Speaker',
+      updates: [
+        {
+          q: { _id: { $oid: speakerId } },
+          u: { $pull: { eventIds: { $oid: eventId } } },
+          upsert: false,
+        },
+      ],
+    });
+  }
+
+  for (const speakerId of added) {
+    await prisma.$runCommandRaw({
+      update: 'Speaker',
+      updates: [
+        {
+          q: { _id: { $oid: speakerId } },
+          u: { $addToSet: { eventIds: { $oid: eventId } } },
+          upsert: false,
+        },
+      ],
+    });
+  }
+}
+
 function validateObjectId(fieldName, value) {
   if (typeof value !== 'string' || !/^[a-fA-F0-9]{24}$/.test(value)) {
     const error = new Error(`ID inválido em ${fieldName}.`);
@@ -27,16 +84,28 @@ function parseEventDate(fieldName, value) {
   if (value === undefined || value === null) {
     return value;
   }
+  // Accept either a date-only string YYYY-MM-DD (interpret as UTC midnight)
+  // or a full ISO datetime string (return as-is parsed by Date).
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [year, month, day] = value.split('-').map(Number);
+    const parsedDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+    if (Number.isNaN(parsedDate.getTime())) {
+      const error = new Error(`Data inválida em ${fieldName}.`);
+      error.statusCode = 400;
+      throw error;
+    }
+    return parsedDate;
+  }
 
-  const parsedDate = new Date(value);
-
-  if (Number.isNaN(parsedDate.getTime())) {
+  // Fallback: try to parse as full ISO datetime
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
     const error = new Error(`Data inválida em ${fieldName}.`);
     error.statusCode = 400;
     throw error;
   }
 
-  return parsedDate;
+  return parsed;
 }
 
 function normalizeEventDates(data) {
@@ -55,13 +124,37 @@ function normalizeEventDates(data) {
 
 export async function getAllEvents(req, res) {
   try {
-    // Use raw Mongo aggregation to avoid Prisma type conversion errors when DB documents contain nulls
-    const events = await prisma.$runCommandRaw({
-      aggregate: 'Event',
-      pipeline: [{ $match: {} }],
-      cursor: {},
-    });
-    res.json(normalizeMongoResponse(unwrapMongoAggregationBatch(events)));
+    const [eventsResult, speakers] = await Promise.all([
+      prisma.$runCommandRaw({
+        aggregate: 'Event',
+        pipeline: [{ $match: {} }],
+        cursor: {},
+      }),
+      getAllSpeakersRaw(),
+    ]);
+
+    const events = normalizeMongoResponse(
+      unwrapMongoAggregationBatch(eventsResult),
+    );
+    const speakerIdsByEventId = new Map();
+
+    for (const speaker of speakers) {
+      for (const eventId of speaker.eventIds ?? []) {
+        const currentIds = speakerIdsByEventId.get(eventId) ?? [];
+        currentIds.push(speaker.id);
+        speakerIdsByEventId.set(eventId, currentIds);
+      }
+    }
+
+    res.json(
+      events.map((event) => ({
+        ...event,
+        speakerIds: mergeUniqueIds(
+          event.speakerIds ?? [],
+          speakerIdsByEventId.get(event.id) ?? [],
+        ),
+      })),
+    );
   } catch (error) {
     console.error('getAllEvents error:', error);
     res.status(500).json({ error: 'Erro ao buscar eventos.' });
@@ -84,6 +177,11 @@ export async function createEvent(req, res) {
     const event = await prisma.event.create({
       data,
     });
+
+    if (Array.isArray(data.speakerIds) && data.speakerIds.length > 0) {
+      await syncSpeakerLinks(event.id, [], data.speakerIds);
+    }
+
     res.status(201).json(normalizeMongoResponse(event));
   } catch (error) {
     const statusCode = error.statusCode || 400;
@@ -136,43 +234,12 @@ export async function updateEvent(req, res) {
     // If speakerIds provided, synchronize Speaker.eventIds arrays
     if (Array.isArray(data.speakerIds)) {
       const eventId = req.params.id;
-      const oldEvent = await prisma.event.findUnique({
-        where: { id: eventId },
-        select: { speakerIds: true },
-      });
-      const oldSids = oldEvent?.speakerIds || [];
-      const newSids = data.speakerIds || [];
+      const linkedSpeakerIds = mergeUniqueIds(
+        currentEvent?.speakerIds ?? [],
+        await getLinkedSpeakerIds(eventId),
+      );
 
-      // removed speakers: present in old but not in new
-      const removed = oldSids.filter((s) => !newSids.includes(s));
-      // added speakers: present in new but not in old
-      const added = newSids.filter((s) => !oldSids.includes(s));
-
-      // Use atomic updates on Speaker.eventIds to avoid race conditions
-      for (const sid of removed) {
-        await prisma.$runCommandRaw({
-          update: 'Speaker',
-          updates: [
-            {
-              q: { _id: { $oid: sid } },
-              u: { $pull: { eventIds: { $oid: eventId } } },
-              upsert: false,
-            },
-          ],
-        });
-      }
-      for (const sid of added) {
-        await prisma.$runCommandRaw({
-          update: 'Speaker',
-          updates: [
-            {
-              q: { _id: { $oid: sid } },
-              u: { $addToSet: { eventIds: { $oid: eventId } } },
-              upsert: false,
-            },
-          ],
-        });
-      }
+      await syncSpeakerLinks(eventId, linkedSpeakerIds, data.speakerIds || []);
     }
 
     const event = await prisma.event.update({
@@ -191,7 +258,6 @@ export async function updateEvent(req, res) {
 export async function deleteEvent(req, res) {
   try {
     const eventId = req.params.id;
-    // Remove eventId from all related speakers' eventIds arrays
     const event = await prisma.event.findUnique({
       where: { id: eventId },
       select: { speakerIds: true },
@@ -199,19 +265,13 @@ export async function deleteEvent(req, res) {
     if (!event) {
       return res.status(404).json({ error: 'Evento não encontrado.' });
     }
-    const sids = event?.speakerIds || [];
-    for (const sid of sids) {
-      await prisma.$runCommandRaw({
-        update: 'Speaker',
-        updates: [
-          {
-            q: { _id: { $oid: sid } },
-            u: { $pull: { eventIds: { $oid: eventId } } },
-            upsert: false,
-          },
-        ],
-      });
-    }
+
+    const linkedSpeakerIds = mergeUniqueIds(
+      event.speakerIds ?? [],
+      await getLinkedSpeakerIds(eventId),
+    );
+
+    await syncSpeakerLinks(eventId, linkedSpeakerIds, []);
 
     await prisma.event.delete({ where: { id: eventId } });
     res.status(200).json({ message: 'Evento deletado com sucesso.' });

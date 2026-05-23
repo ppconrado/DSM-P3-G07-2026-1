@@ -39,12 +39,22 @@ export function normalizeMongoValue(value) {
       return new Date(Number(value.$date.$numberLong)).toISOString();
     }
 
-    return Object.fromEntries(
+    const normalizedObject = Object.fromEntries(
       Object.entries(value).map(([key, entryValue]) => [
         key,
         normalizeMongoValue(entryValue),
       ]),
     );
+
+    if (
+      Object.prototype.hasOwnProperty.call(normalizedObject, '_id') &&
+      !Object.prototype.hasOwnProperty.call(normalizedObject, 'id')
+    ) {
+      normalizedObject.id = normalizedObject._id;
+      delete normalizedObject._id;
+    }
+
+    return normalizedObject;
   }
 
   return value;

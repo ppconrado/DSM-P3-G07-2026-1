@@ -1,8 +1,10 @@
 import express, { json, urlencoded } from 'express'; // Importar o framework Express e middlewares para parsear JSON e dados de formulário
 import cookieParser from 'cookie-parser'; // Middleware para parsear cookies
 import logger from 'morgan'; // Middleware para log de requisições HTTP
+import cors from 'cors';
 
 import indexRouter from './routes/index.js';
+import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
 
 import eventsRouter from './routes/events.js'; // Importar o roteador para eventos
@@ -14,12 +16,34 @@ import certificatesRouter from './routes/certificates.js'; // Importar o roteado
 
 const app = express(); // Criar a aplicação Express
 
+// In dev allow both default Next.js dev ports (3000 and 3001)
+const allowedOrigins = (
+  process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:3001'
+)
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Origem não permitida pelo CORS.'));
+    },
+    credentials: true,
+  }),
+);
+
 app.use(logger('dev')); // Middleware para log de requisições
 app.use(json()); // Middleware para parsear JSON
 app.use(urlencoded({ extended: false })); // Middleware para parsear dados de formulário (application/x-www-form-urlencoded)
 app.use(cookieParser()); // Middleware para parsear cookies
 
 app.use('/', indexRouter);
+app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 
 app.use('/events', eventsRouter); // Rota para acessar os eventos

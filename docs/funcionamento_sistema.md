@@ -6,9 +6,18 @@
 - Após o cadastro, o sistema gera um id único (no Prisma/MongoDB é um ObjectId mapeado) para o participante.
 - Esse id é usado em todas as transações futuras desse usuário.
 
-### 2. Autenticação (não implementada)
+### 2. Autenticação
 
-- O participante ainda não autentica neste backend.
+- Create user:{
+
+"name": "João Silva",
+"email": "joao@example.com",
+"password": "senha123",
+"phone": "11999999999",
+"role": "PARTICIPANTE"
+}
+
+O sistema armazena o hash da senha
 
 ### 3. Visualização de eventos
 

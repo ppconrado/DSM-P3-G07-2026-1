@@ -103,6 +103,42 @@ describe('Integration tests', function () {
     }
   });
 
+  it('POST /auth/login issues cookies and /auth/me returns the authenticated user', async () => {
+    const email = `auth-${Date.now()}@example.com`;
+    const password = 'auth-test-password';
+
+    try {
+      const createRes = await request(app).post('/users').send({
+        name: 'Auth Integration User',
+        email,
+        passwordHash: password,
+        role: 'PARTICIPANTE',
+      });
+      assert.equal(createRes.status, 201);
+
+      const agent = request.agent(app);
+
+      const loginRes = await agent
+        .post('/auth/login')
+        .send({ email, password });
+      assert.equal(loginRes.status, 200);
+      assert.equal(loginRes.body.user.email, email);
+      assert.equal(loginRes.body.user.role, 'PARTICIPANTE');
+
+      const meRes = await agent.get('/auth/me');
+      assert.equal(meRes.status, 200);
+      assert.equal(meRes.body.user.email, email);
+
+      const logoutRes = await agent.post('/auth/logout');
+      assert.equal(logoutRes.status, 200);
+
+      const afterLogoutRes = await agent.get('/auth/me');
+      assert.equal(afterLogoutRes.status, 401);
+    } finally {
+      await prisma.user.deleteMany({ where: { email } }).catch(() => {});
+    }
+  });
+
   it('POST /events accepts date-only future payloads', async () => {
     const adminUser = await prisma.user.create({
       data: {
@@ -694,6 +730,63 @@ describe('Integration tests', function () {
         sessionRes.body.error,
         'Data da sessão deve estar dentro do período do evento.',
       );
+    } finally {
+      if (eventId) {
+        await prisma.eventSession
+          .deleteMany({ where: { eventId } })
+          .catch(() => {});
+      }
+      await prisma.event.deleteMany({ where: { title } }).catch(() => {});
+      await prisma.user
+        .deleteMany({ where: { id: adminUser.id } })
+        .catch(() => {});
+    }
+  });
+
+  it('POST /events/:eventId/sessions accepts session dates on event boundaries', async () => {
+    const adminUser = await prisma.user.create({
+      data: {
+        name: 'Session Boundary Admin Test',
+        email: `session-boundary-admin-${Date.now()}@example.com`,
+        passwordHash: '',
+        role: 'ADMIN',
+      },
+    });
+
+    const title = `Session Boundary Event ${Date.now()}`;
+    let eventId;
+
+    try {
+      const eventRes = await request(app).post('/events').send({
+        title,
+        description: 'Evento para testar datas-limite',
+        startDate: '2026-07-19',
+        endDate: '2026-07-21',
+        location: 'Auditório',
+        type: 'Palestra',
+        capacity: 100,
+        certificateRequiredPercent: 75,
+        createdByAdminId: adminUser.id,
+        status: 'CRIANDO',
+      });
+      assert.equal(eventRes.status, 201);
+      eventId = eventRes.body.id;
+
+      const boundaryDates = ['2026-07-19', '2026-07-21'];
+
+      for (const sessionDate of boundaryDates) {
+        const sessionRes = await request(app)
+          .post(`/events/${eventId}/sessions`)
+          .send({
+            sessionDate,
+            startTime: '16:00',
+            endTime: '18:00',
+            room: 'Sala 10',
+          });
+
+        assert.equal(sessionRes.status, 201);
+        assert.equal(sessionRes.body.sessionDate.slice(0, 10), sessionDate);
+      }
     } finally {
       if (eventId) {
         await prisma.eventSession

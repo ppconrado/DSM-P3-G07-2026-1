@@ -95,6 +95,27 @@
                     }
                 },
                 {
+                    "name": "List users including inactive",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/users?includeInactive=true",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users"
+                            ],
+                            "query": [
+                                {
+                                    "key": "includeInactive",
+                                    "value": "true"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
                     "name": "Get user by id",
                     "request": {
                         "method": "GET",

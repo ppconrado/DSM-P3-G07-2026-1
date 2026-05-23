@@ -38,15 +38,17 @@ enum EventStatus {
 
 /// Usuários do sistema - Admins e Participantes
 model User {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  name         String   @db.String
-  email        String   @unique @db.String
-  passwordHash String   @db.String
-  phone        String?  @db.String
-  role         UserRole @default(PARTICIPANTE)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String    @db.String
+  email                 String    @unique @db.String
+  passwordHash          String    @db.String
+  phone                 String?   @db.String
+  role                  UserRole  @default(PARTICIPANTE)
+  isActive              Boolean   @default(true)
+  refreshTokenHash      String?   @db.String
+  refreshTokenExpiresAt DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   // Relações
   createdEvents      Event[]

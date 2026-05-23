@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --academy-primary: 208 100% 42%;
+  --academy-secondary: 169 100% 35%;
+  --academy-accent: 32 100% 50%;
+  --academy-surface: 212 33% 97%;
+  --academy-text: 215 25% 20%;
+  --academy-muted: 215 16% 47%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f5f7fa;
+  color: hsl(var(--academy-text));
+}
+
+::selection {
+  background: rgba(0, 120, 215, 0.16);
+  color: #0f172a;
+}
+
+.academy-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
