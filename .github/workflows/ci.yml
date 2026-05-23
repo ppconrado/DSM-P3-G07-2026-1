@@ -25,7 +25,7 @@ jobs:
 
       - name: Install Playwright browsers
         working-directory: front-end
-        run: npx playwright install --with-deps
+        run: npx playwright install chromium
 
       - name: Lint frontend
         working-directory: front-end
