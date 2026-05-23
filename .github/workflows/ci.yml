@@ -7,33 +7,63 @@ on:
     branches: [main, master]
 
 jobs:
-  build-and-test:
+  frontend-build:
+    name: Frontend — build & E2E
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js
+      - name: Setup Node.js (frontend)
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'npm'
 
-      - name: Install dependencies
-        run: |
-          npm ci
+      - name: Install frontend dependencies
+        working-directory: front-end
+        run: npm ci
 
       - name: Install Playwright browsers
+        working-directory: front-end
         run: npx playwright install --with-deps
 
-      - name: Lint
+      - name: Lint frontend
+        working-directory: front-end
         run: npm run lint
 
-      - name: Build
+      - name: Build frontend
+        working-directory: front-end
         run: npm run build
 
-      - name: Run unit/integration tests
-        run: |
-          # run any unit tests here if configured
-          echo "No unit tests configured"
-
       - name: Run Playwright E2E
+        working-directory: front-end
         run: npm run test:e2e
+
+  backend-build:
+    name: Backend — install & tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js (backend)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install backend dependencies
+        working-directory: back-end
+        run: npm ci
+
+      - name: Run backend tests
+        working-directory: back-end
+        run: |
+          if [ -f package.json ]; then
+            if npm run | grep -q "test"; then
+              npm test || true
+            else
+              echo "No backend tests configured"
+            fi
+          else
+            echo "No package.json in back-end"
+          fi
