@@ -162,7 +162,7 @@ export default function ParticipantDashboardPage() {
   const nextEvent = recentEvents[0];
 
   return (
-    <>
+    <div className="space-y-8">
       <section className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-academy-primary/90 p-6 text-white shadow-xl">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl space-y-4">
@@ -197,7 +197,7 @@ export default function ParticipantDashboardPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
         {loading
           ? cards.map((card) => {
               const Icon = card.icon;
@@ -205,18 +205,18 @@ export default function ParticipantDashboardPage() {
               return (
                 <Card
                   key={card.label}
-                  className="overflow-hidden border-slate-200"
+                  className="h-full overflow-hidden border-slate-200"
                 >
-                  <CardContent className="flex items-center justify-between gap-4 p-5">
-                    <div>
-                      <p className="text-sm font-medium text-slate-500">
+                  <CardContent className="flex h-full items-center justify-between gap-4 p-5">
+                    <div className="flex min-h-[4.5rem] flex-1 flex-col justify-center space-y-1">
+                      <p className="min-h-[2.75rem] text-sm font-medium leading-5 text-slate-500">
                         {card.label}
                       </p>
-                      <p className="mt-2 font-display text-3xl font-bold text-academy-text">
+                      <p className="font-display text-3xl font-bold text-academy-text">
                         --
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-academy-primary/10 p-3 text-academy-primary">
+                    <div className="self-start rounded-2xl bg-academy-primary/10 p-3 text-academy-primary">
                       <Icon className="h-6 w-6" />
                     </div>
                   </CardContent>
@@ -229,18 +229,18 @@ export default function ParticipantDashboardPage() {
               return (
                 <Card
                   key={card.label}
-                  className="overflow-hidden border-slate-200"
+                  className="h-full overflow-hidden border-slate-200"
                 >
-                  <CardContent className="flex items-center justify-between gap-4 p-5">
-                    <div>
-                      <p className="text-sm font-medium text-slate-500">
+                  <CardContent className="flex h-full items-center justify-between gap-4 p-5">
+                    <div className="flex min-h-[4.5rem] flex-1 flex-col justify-center space-y-1">
+                      <p className="min-h-[2.75rem] text-sm font-medium leading-5 text-slate-500">
                         {card.label}
                       </p>
-                      <p className="mt-2 font-display text-3xl font-bold text-academy-text">
+                      <p className="font-display text-3xl font-bold text-academy-text">
                         {card.value}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-academy-primary/10 p-3 text-academy-primary">
+                    <div className="self-start rounded-2xl bg-academy-primary/10 p-3 text-academy-primary">
                       <Icon className="h-6 w-6" />
                     </div>
                   </CardContent>
@@ -331,6 +331,6 @@ export default function ParticipantDashboardPage() {
           </CardContent>
         </Card>
       </section>
-    </>
+    </div>
   );
 }

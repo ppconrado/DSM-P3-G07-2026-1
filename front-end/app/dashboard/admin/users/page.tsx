@@ -251,7 +251,7 @@ function AdminUsersPageContent() {
 
   return (
     <>
-      <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[var(--admin-left-width)_1fr]">
         <Card>
           <CardHeader>
             <CardTitle>

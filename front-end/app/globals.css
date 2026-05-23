@@ -9,6 +9,7 @@
   --academy-surface: 212 33% 97%;
   --academy-text: 215 25% 20%;
   --academy-muted: 215 16% 47%;
+  --admin-left-width: 390px;
 }
 
 * {

@@ -328,7 +328,7 @@ function AdminEventsPageContent() {
 
   return (
     <>
-      <div className="grid gap-6 xl:grid-cols-[390px_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[var(--admin-left-width)_1fr]">
         <Card>
           <CardHeader>
             <CardTitle>

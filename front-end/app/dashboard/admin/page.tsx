@@ -164,22 +164,24 @@ export default function AdminDashboardPage() {
   );
 
   return (
-    <>
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div className="space-y-8">
+      <section className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
         {loading
           ? metrics.map((metric) => {
               const Icon = metric.icon;
 
               return (
-                <Card key={metric.label}>
-                  <CardContent className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-sm text-slate-600">{metric.label}</p>
-                      <p className="mt-2 font-display text-3xl font-bold text-academy-text">
+                <Card key={metric.label} className="h-full">
+                  <CardContent className="flex h-full items-center justify-between gap-4 p-5">
+                    <div className="flex min-h-[4.5rem] flex-1 flex-col justify-center space-y-1">
+                      <p className="min-h-[2.75rem] text-sm leading-5 text-slate-600">
+                        {metric.label}
+                      </p>
+                      <p className="font-display text-3xl font-bold text-academy-text">
                         --
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-academy-primary/10 p-3 text-academy-primary">
+                    <div className="self-start rounded-2xl bg-academy-primary/10 p-3 text-academy-primary">
                       <Icon className="h-6 w-6" />
                     </div>
                   </CardContent>
@@ -190,15 +192,17 @@ export default function AdminDashboardPage() {
               const Icon = metric.icon;
 
               return (
-                <Card key={metric.label}>
-                  <CardContent className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-sm text-slate-600">{metric.label}</p>
-                      <p className="mt-2 font-display text-3xl font-bold text-academy-text">
+                <Card key={metric.label} className="h-full">
+                  <CardContent className="flex h-full items-center justify-between gap-4 p-5">
+                    <div className="flex min-h-[4.5rem] flex-1 flex-col justify-center space-y-1">
+                      <p className="min-h-[2.75rem] text-sm leading-5 text-slate-600">
+                        {metric.label}
+                      </p>
+                      <p className="font-display text-3xl font-bold text-academy-text">
                         {metric.value}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-academy-primary/10 p-3 text-academy-primary">
+                    <div className="self-start rounded-2xl bg-academy-primary/10 p-3 text-academy-primary">
                       <Icon className="h-6 w-6" />
                     </div>
                   </CardContent>
@@ -207,7 +211,7 @@ export default function AdminDashboardPage() {
             })}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <section className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
         <Card>
           <CardHeader>
             <div>
@@ -368,6 +372,6 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </section>
-    </>
+    </div>
   );
 }

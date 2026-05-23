@@ -582,7 +582,7 @@ function AdminCertificatesPageContent() {
 
   return (
     <>
-      <div className="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
+      <div className="grid gap-6 xl:grid-cols-[var(--admin-left-width)_1fr]">
         <Card className="min-w-0">
           <CardHeader>
             <CardTitle>Emitir certificado</CardTitle>

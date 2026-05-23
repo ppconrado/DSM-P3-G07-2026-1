@@ -174,7 +174,7 @@ export default function AdminSpeakersPage() {
 
   return (
     <>
-      <div className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
+      <div className="grid gap-6 xl:grid-cols-[var(--admin-left-width)_1fr]">
         <Card>
           <CardHeader>
             <CardTitle>
@@ -252,7 +252,6 @@ export default function AdminSpeakersPage() {
                                 toggleEventSelection(eventItem.id)
                               }
                             />
-                            type="checkbox"
                             <div className="min-w-0">
                               <p className="font-semibold text-slate-800">
                                 {eventItem.title}
