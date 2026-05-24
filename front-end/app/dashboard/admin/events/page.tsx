@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
@@ -92,7 +92,7 @@ function AdminEventsPageContent() {
     setSuccessMessage(null);
   }
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     try {
       const [eventData, speakerData] = await Promise.all([
         apiFetch<EventRecord[]>('/events'),
@@ -116,11 +116,11 @@ function AdminEventsPageContent() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [addToast]);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    void loadData();
+  }, [loadData]);
 
   useEffect(() => {
     async function loadCreator() {
@@ -543,7 +543,10 @@ function AdminEventsPageContent() {
                 ) : null}
 
                 <div className="flex flex-wrap gap-3">
-                  <Button type="submit" disabled={saving || !createdByAdminId}>
+                  <Button
+                    type="submit"
+                    disabled={saving || (!editingEventId && !createdByAdminId)}
+                  >
                     <Plus className="h-4 w-4" />
                     {saving
                       ? 'Salvando...'

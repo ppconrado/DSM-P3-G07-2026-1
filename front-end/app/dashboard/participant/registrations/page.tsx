@@ -128,7 +128,7 @@ function ParticipantRegistrationsPageContent() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [addToast]);
 
   const userRegistrations = useMemo(
     () =>

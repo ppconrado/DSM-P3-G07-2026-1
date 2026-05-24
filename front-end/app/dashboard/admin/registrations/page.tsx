@@ -113,7 +113,7 @@ function AdminRegistrationsPageContent() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [addToast]);
 
   const registrationsWithRelations = useMemo(() => {
     const usersById = new Map(users.map((user) => [user.id, user]));

@@ -23,18 +23,17 @@ function canAccessRoute(pathname: string, role: UserRole) {
 
 export function AuthGate({ children }: AuthGateProps) {
   const skipAuthGate = process.env.NEXT_PUBLIC_SKIP_AUTH_GATE === 'true';
-
-  if (skipAuthGate) {
-    return <>{children}</>;
-  }
-
   const router = useRouter();
   const pathname = usePathname();
   const [status, setStatus] = useState<'loading' | 'ready' | 'redirecting'>(
-    'loading',
+    skipAuthGate ? 'ready' : 'loading',
   );
 
   useEffect(() => {
+    if (skipAuthGate) {
+      return;
+    }
+
     let cancelled = false;
 
     async function validateSession() {
@@ -69,7 +68,11 @@ export function AuthGate({ children }: AuthGateProps) {
     return () => {
       cancelled = true;
     };
-  }, [pathname, router]);
+  }, [pathname, router, skipAuthGate]);
+
+  if (skipAuthGate) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="relative">

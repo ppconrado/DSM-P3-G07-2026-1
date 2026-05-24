@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
@@ -63,7 +63,7 @@ function AdminUsersPageContent() {
     setSuccessMessage(null);
   }
 
-  async function loadUsers() {
+  const loadUsers = useCallback(async () => {
     try {
       const data = await apiFetch<UserRecord[]>('/users?includeInactive=true');
       setUsers(data);
@@ -82,11 +82,11 @@ function AdminUsersPageContent() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [addToast]);
 
   useEffect(() => {
-    loadUsers();
-  }, []);
+    void loadUsers();
+  }, [loadUsers]);
 
   function beginEdit(user: UserRecord) {
     setEditingUserId(user.id);

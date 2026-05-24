@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
@@ -121,7 +121,7 @@ function AdminAttendancePageContent() {
   const selectedEventId = searchParams.get('eventId');
   const selectedSessionId = searchParams.get('sessionId');
 
-  async function loadAttendance() {
+  const loadAttendance = useCallback(async () => {
     try {
       const [session, registrationList, userList, eventList] =
         await Promise.all([
@@ -186,11 +186,11 @@ function AdminAttendancePageContent() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [addToast]);
 
   useEffect(() => {
-    loadAttendance();
-  }, []);
+    void loadAttendance();
+  }, [loadAttendance]);
 
   const attendanceRows = useMemo(() => {
     const usersById = new Map(users.map((user) => [user.id, user]));

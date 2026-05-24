@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pencil, Plus, Trash2, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { formatDateOnlyUTC } from '@/lib/date';
@@ -46,7 +46,7 @@ export default function AdminSpeakersPage() {
     setSuccessMessage(null);
   }
 
-  async function loadSpeakers() {
+  const loadSpeakers = useCallback(async () => {
     try {
       const [speakerList, eventList] = await Promise.all([
         apiFetch<SpeakerRecord[]>('/speakers'),
@@ -70,11 +70,11 @@ export default function AdminSpeakersPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [addToast]);
 
   useEffect(() => {
-    loadSpeakers();
-  }, []);
+    void loadSpeakers();
+  }, [loadSpeakers]);
 
   function beginEdit(speaker: SpeakerRecord) {
     setEditingSpeakerId(speaker.id);

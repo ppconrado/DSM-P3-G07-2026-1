@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Users,
   Calendar,
@@ -45,59 +45,47 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let active = true;
+  const loadDashboard = useCallback(async () => {
+    try {
+      const [
+        eventList,
+        userList,
+        speakerList,
+        certificateList,
+        registrationList,
+      ] = await Promise.all([
+        apiFetch<EventRecord[]>('/events'),
+        apiFetch<UserRecord[]>('/users?includeInactive=true'),
+        apiFetch<SpeakerRecord[]>('/speakers'),
+        apiFetch<CertificateRecord[]>('/certificates'),
+        apiFetch<RegistrationRecord[]>('/registrations'),
+      ]);
 
-    async function loadDashboard() {
-      try {
-        const [
-          eventList,
-          userList,
-          speakerList,
-          certificateList,
-          registrationList,
-        ] = await Promise.all([
-          apiFetch<EventRecord[]>('/events'),
-          apiFetch<UserRecord[]>('/users?includeInactive=true'),
-          apiFetch<SpeakerRecord[]>('/speakers'),
-          apiFetch<CertificateRecord[]>('/certificates'),
-          apiFetch<RegistrationRecord[]>('/registrations'),
-        ]);
-
-        if (!active) return;
-
-        setEvents(eventList);
-        setUsers(userList);
-        setSpeakers(speakerList);
-        setCertificates(certificateList);
-        setRegistrations(registrationList);
-      } catch (loadError) {
-        if (!active) return;
-
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : 'Erro ao carregar dashboard.',
-        );
-        addToast(
-          loadError instanceof Error
-            ? loadError.message
-            : 'Erro ao carregar dashboard.',
-          'error',
-        );
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
+      setEvents(eventList);
+      setUsers(userList);
+      setSpeakers(speakerList);
+      setCertificates(certificateList);
+      setRegistrations(registrationList);
+    } catch (loadError) {
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Erro ao carregar dashboard.',
+      );
+      addToast(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Erro ao carregar dashboard.',
+        'error',
+      );
+    } finally {
+      setLoading(false);
     }
+  }, [addToast]);
 
-    loadDashboard();
-
-    return () => {
-      active = false;
-    };
-  }, []);
+  useEffect(() => {
+    void loadDashboard();
+  }, [loadDashboard]);
 
   const metrics = useMemo(() => {
     const activeEvents = events.filter(

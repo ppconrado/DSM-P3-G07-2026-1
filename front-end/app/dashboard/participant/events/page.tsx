@@ -121,7 +121,7 @@ function ParticipantEventsPageContent() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [addToast]);
 
   async function handleRegister(eventId: string) {
     setRegisteringFor(eventId);

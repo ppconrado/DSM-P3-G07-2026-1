@@ -62,7 +62,7 @@ export default function ParticipantProfilePage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [addToast]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

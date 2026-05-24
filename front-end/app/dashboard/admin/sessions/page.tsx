@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pencil, Plus, Trash2, X } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
@@ -111,7 +111,7 @@ function AdminSessionsPageContent() {
     setSessionFormOpenForEventId(eventId);
   }
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     const eventList = await apiFetch<EventRecord[]>('/events');
     const sessionsByEventId = await Promise.all(
       eventList.map(async (event) => ({
@@ -132,37 +132,22 @@ function AdminSessionsPageContent() {
         {},
       ),
     );
-  }
+  }, []);
 
   useEffect(() => {
-    let active = true;
-
-    async function bootstrap() {
-      try {
-        await loadData();
-      } catch (loadError) {
-        if (!active) {
-          return;
-        }
+    void loadData()
+      .catch((loadError) => {
         addToast(
           loadError instanceof Error
             ? loadError.message
             : 'Erro ao carregar sessões.',
           'error',
         );
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    }
-
-    bootstrap();
-
-    return () => {
-      active = false;
-    };
-  }, []);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [addToast, loadData]);
 
   async function refreshData() {
     await loadData();
@@ -207,6 +192,12 @@ function AdminSessionsPageContent() {
           ? 'Sessão atualizada com sucesso.'
           : 'Sessão criada com sucesso.',
       );
+      addToast(
+        editingSessionId
+          ? 'Sessão atualizada com sucesso.'
+          : 'Sessão criada com sucesso.',
+        'success',
+      );
       resetSessionForm();
       setSessionFormOpenForEventId(null);
       await refreshData();
@@ -245,6 +236,7 @@ function AdminSessionsPageContent() {
       }
 
       setSuccessMessage('Sessão excluída com sucesso.');
+      addToast('Sessão excluída com sucesso.', 'success');
       await refreshData();
     } catch (deleteError) {
       setFormError(
@@ -355,8 +347,6 @@ function AdminSessionsPageContent() {
       return searchableText.includes(normalizedSearchTerm);
     });
   }, [
-    dateFrom,
-    dateTo,
     hasDateRangeFilter,
     orderedEvents,
     searchTerm,

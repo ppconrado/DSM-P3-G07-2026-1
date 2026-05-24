@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Plus, Upload, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -94,7 +94,7 @@ function AdminCertificatesPageContent() {
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     try {
       const [session, certificateList, registrationList, userList, eventList] =
         await Promise.all([
@@ -125,11 +125,11 @@ function AdminCertificatesPageContent() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [addToast]);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    void loadData();
+  }, [loadData]);
 
   function resetForm() {
     setRegistrationId('');

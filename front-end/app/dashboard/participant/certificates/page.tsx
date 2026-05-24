@@ -97,7 +97,7 @@ function ParticipantCertificatesPageContent() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [addToast]);
 
   const userCertificates = useMemo(() => {
     const registrationsById = new Map(
