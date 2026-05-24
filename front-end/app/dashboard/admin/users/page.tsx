@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { apiFetch } from '@/lib/api';
 import { useToast } from '@/components/ui/toast';
+import { useAutoHideMessage } from '@/lib/useAutoHideMessage';
 import type { UserRecord } from '@/lib/domain';
 
 function roleTone(role: UserRecord['role']) {
@@ -51,6 +52,8 @@ function AdminUsersPageContent() {
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useAutoHideMessage(successMessage, () => setSuccessMessage(null));
 
   function resetForm() {
     setEditingUserId(null);
@@ -279,192 +282,81 @@ function AdminUsersPageContent() {
 
   return (
     <>
-      <div className="grid gap-6 xl:grid-cols-[var(--admin-left-width)_1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {editingUserId ? 'Editar usuário' : 'Novo usuário'}
-            </CardTitle>
+      <Card>
+        <CardHeader>
+          <div>
+            <CardTitle>Lista de usuários</CardTitle>
             <CardDescription>
-              Criação e atualização com os campos suportados pela API.
+              Separei os usuários por status para facilitar a gestão e a
+              reativação.
             </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="space-y-3">
-                <div className="h-6 w-3/4 rounded bg-slate-200/60 animate-pulse" />
-                <div className="h-6 w-full rounded bg-slate-200/60 animate-pulse" />
-                <div className="h-6 w-1/2 rounded bg-slate-200/60 animate-pulse" />
-              </div>
-            ) : (
-              <form className="grid gap-4" onSubmit={handleSubmit}>
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Nome
-                  <Input
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    required
-                  />
-                </label>
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  E-mail
-                  <Input
-                    type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    required
-                  />
-                </label>
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Telefone
-                  <Input
-                    value={phone}
-                    onChange={(event) => setPhone(event.target.value)}
-                  />
-                </label>
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Papel
-                  <select
-                    className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
-                    value={role}
-                    onChange={(event) =>
-                      setRole(event.target.value as UserRecord['role'])
-                    }
-                  >
-                    <option value="PARTICIPANTE">PARTICIPANTE</option>
-                    <option value="ADMIN">ADMIN</option>
-                  </select>
-                </label>
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  {editingUserId ? 'Nova senha (opcional)' : 'Senha'}
-                  <Input
-                    type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    required={!editingUserId}
-                  />
-                </label>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4 text-sm text-slate-600">
+          <label className="grid gap-2 text-sm font-medium text-slate-700">
+            Buscar usuário
+            <Input
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Nome ou e-mail"
+            />
+          </label>
 
-                {formError ? (
-                  <p
-                    className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
-                    role="alert"
-                  >
-                    {formError}
-                  </p>
-                ) : null}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant={viewMode === 'active' ? 'default' : 'secondary'}
+              size="sm"
+              onClick={() => setViewMode('active')}
+            >
+              Ativos ({activeUsers.length})
+            </Button>
+            <Button
+              type="button"
+              variant={viewMode === 'inactive' ? 'default' : 'secondary'}
+              size="sm"
+              onClick={() => setViewMode('inactive')}
+            >
+              Inativos ({inactiveUsers.length})
+            </Button>
+            <Button
+              type="button"
+              variant={viewMode === 'all' ? 'default' : 'secondary'}
+              size="sm"
+              onClick={() => setViewMode('all')}
+            >
+              Todos ({orderedUsers.length})
+            </Button>
 
-                {successMessage ? (
-                  <p
-                    className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    {successMessage}
-                  </p>
-                ) : null}
-
-                <div className="flex flex-wrap gap-3">
-                  <Button type="submit" disabled={saving}>
-                    <Plus className="h-4 w-4" />
-                    {saving
-                      ? 'Salvando...'
-                      : editingUserId
-                        ? 'Atualizar usuário'
-                        : 'Criar usuário'}
-                  </Button>
-                  {editingUserId ? (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={resetForm}
-                    >
-                      Cancelar
-                    </Button>
-                  ) : null}
-                </div>
-              </form>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div>
-              <CardTitle>Lista de usuários</CardTitle>
-              <CardDescription>
-                Separei os usuários por status para facilitar a gestão e a
-                reativação.
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm text-slate-600">
-            <label className="grid gap-2 text-sm font-medium text-slate-700">
-              Buscar usuário
-              <Input
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Nome ou e-mail"
-              />
-            </label>
-
-            <div className="flex flex-wrap gap-2">
+            {hasActiveFilters ? (
               <Button
                 type="button"
-                variant={viewMode === 'active' ? 'default' : 'secondary'}
+                variant="ghost"
                 size="sm"
-                onClick={() => setViewMode('active')}
+                onClick={() => {
+                  setSearchTerm('');
+                  setViewMode('active');
+                }}
               >
-                Ativos ({activeUsers.length})
+                Limpar filtros
               </Button>
-              <Button
-                type="button"
-                variant={viewMode === 'inactive' ? 'default' : 'secondary'}
-                size="sm"
-                onClick={() => setViewMode('inactive')}
-              >
-                Inativos ({inactiveUsers.length})
-              </Button>
-              <Button
-                type="button"
-                variant={viewMode === 'all' ? 'default' : 'secondary'}
-                size="sm"
-                onClick={() => setViewMode('all')}
-              >
-                Todos ({orderedUsers.length})
-              </Button>
-
-              {hasActiveFilters ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setViewMode('active');
-                  }}
-                >
-                  Limpar filtros
-                </Button>
-              ) : null}
-            </div>
-
-            {loading ? <p>Carregando usuários...</p> : null}
-            {error ? (
-              <p className="rounded-2xl bg-rose-50 px-4 py-3 text-rose-700">
-                {error}
-              </p>
             ) : null}
+          </div>
 
-            {!loading && !error && filteredUsers.length === 0 ? (
-              <p>Nenhum usuário {viewLabel} encontrado.</p>
-            ) : null}
+          {loading ? <p>Carregando usuários...</p> : null}
+          {error ? (
+            <p className="rounded-2xl bg-rose-50 px-4 py-3 text-rose-700">
+              {error}
+            </p>
+          ) : null}
 
-            {filteredUsers.map((user) => (
-              <div
-                key={user.id}
-                className="flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"
-              >
+          {!loading && !error && filteredUsers.length === 0 ? (
+            <p>Nenhum usuário {viewLabel} encontrado.</p>
+          ) : null}
+
+          {filteredUsers.map((user) => (
+            <div key={user.id} className="rounded-2xl bg-slate-50 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-semibold text-academy-text">{user.name}</p>
                   <p className="mt-1 text-slate-500">{user.email}</p>
@@ -494,10 +386,108 @@ function AdminUsersPageContent() {
                   </Button>
                 </div>
               </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
+
+              {editingUserId === user.id ? (
+                <form
+                  className="mt-4 rounded-3xl border border-slate-200 bg-white p-4"
+                  onSubmit={handleSubmit}
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <CardTitle className="text-sm">Editar usuário</CardTitle>
+                      <p className="text-xs text-slate-500">
+                        {user.name} · {user.email}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={resetForm}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+
+                  <div className="mt-4 grid gap-4">
+                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      Nome
+                      <Input
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                        required
+                      />
+                    </label>
+                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      E-mail
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        required
+                      />
+                    </label>
+                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      Telefone
+                      <Input
+                        value={phone}
+                        onChange={(event) => setPhone(event.target.value)}
+                      />
+                    </label>
+                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      Papel
+                      <select
+                        className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
+                        value={role}
+                        onChange={(event) =>
+                          setRole(event.target.value as UserRecord['role'])
+                        }
+                      >
+                        <option value="PARTICIPANTE">PARTICIPANTE</option>
+                        <option value="ADMIN">ADMIN</option>
+                      </select>
+                    </label>
+                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      Nova senha (opcional)
+                      <Input
+                        type="password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                      />
+                    </label>
+
+                    {formError ? (
+                      <p
+                        className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                        role="alert"
+                      >
+                        {formError}
+                      </p>
+                    ) : null}
+
+                    {successMessage ? (
+                      <p
+                        className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+                        role="status"
+                        aria-live="polite"
+                      >
+                        {successMessage}
+                      </p>
+                    ) : null}
+
+                    <div className="flex flex-wrap gap-3">
+                      <Button type="submit" disabled={saving}>
+                        <Plus className="h-4 w-4" />
+                        {saving ? 'Salvando...' : 'Atualizar usuário'}
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+              ) : null}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </>
   );
 }

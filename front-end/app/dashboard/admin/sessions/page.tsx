@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { formatDateOnlyUTC } from '@/lib/date';
 import { apiFetch } from '@/lib/api';
 import { useToast } from '@/components/ui/toast';
+import { useAutoHideMessage } from '@/lib/useAutoHideMessage';
 import type { EventRecord, EventSessionRecord } from '@/lib/domain';
 
 function normalizeSearchText(value: string) {
@@ -40,6 +41,9 @@ function AdminSessionsPageContent() {
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  useAutoHideMessage(successMessage, () => setSuccessMessage(null));
+
   const [searchTerm, setSearchTerm] = useState(
     () => searchParams.get('q') ?? '',
   );

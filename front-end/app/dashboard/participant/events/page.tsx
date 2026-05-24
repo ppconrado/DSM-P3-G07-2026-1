@@ -66,6 +66,18 @@ function ParticipantEventsPageContent() {
   const { addToast } = useToast();
 
   useEffect(() => {
+    if (error !== 'Inscrição só permitida em eventos com status ATIVA.') {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setError(null);
+    }, 3000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [error]);
+
+  useEffect(() => {
     let active = true;
 
     async function loadEvents() {

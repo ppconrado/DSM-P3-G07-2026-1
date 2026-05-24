@@ -16,6 +16,7 @@ import { formatDateOnlyUTC } from '@/lib/date';
 import { Input } from '@/components/ui/input';
 import { apiFetch, API_BASE_URL, extractErrorMessage } from '@/lib/api';
 import { useToast } from '@/components/ui/toast';
+import { useAutoHideMessage } from '@/lib/useAutoHideMessage';
 import { fetchSession } from '@/lib/auth';
 import type {
   CertificateRecord,
@@ -93,6 +94,8 @@ function AdminCertificatesPageContent() {
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useAutoHideMessage(successMessage, () => setSuccessMessage(null));
 
   const loadData = useCallback(async () => {
     try {

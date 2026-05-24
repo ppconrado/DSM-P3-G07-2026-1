@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -17,6 +16,7 @@ import { formatDateOnlyUTC } from '@/lib/date';
 import { Input } from '@/components/ui/input';
 import { apiFetch } from '@/lib/api';
 import { useToast } from '@/components/ui/toast';
+import { useAutoHideMessage } from '@/lib/useAutoHideMessage';
 import { fetchSession } from '@/lib/auth';
 import type {
   AttendanceRecord,
@@ -81,6 +81,9 @@ function AdminAttendancePageContent() {
   const [presenceDrafts, setPresenceDrafts] = useState<Record<string, boolean>>(
     {},
   );
+
+  useAutoHideMessage(successMessage, () => setSuccessMessage(null));
+
   const [sessionSearchTerm, setSessionSearchTerm] = useState(
     () => searchParams.get('sessionQ') ?? '',
   );
@@ -120,6 +123,33 @@ function AdminAttendancePageContent() {
   });
   const selectedEventId = searchParams.get('eventId');
   const selectedSessionId = searchParams.get('sessionId');
+
+  function clearSelectedSession() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('eventId');
+    params.delete('sessionId');
+
+    const nextQueryString = params.toString();
+
+    router.replace(
+      nextQueryString ? `${pathname}?${nextQueryString}` : pathname,
+      { scroll: false },
+    );
+  }
+
+  function handleSessionPickerToggle(eventId: string, sessionId: string) {
+    if (selectedEventId === eventId && selectedSessionId === sessionId) {
+      clearSelectedSession();
+      return;
+    }
+
+    const nextHref = buildAttendanceHref(
+      eventId,
+      sessionId,
+      attendanceFilterParams,
+    );
+    router.replace(nextHref, { scroll: false });
+  }
 
   const loadAttendance = useCallback(async () => {
     try {
@@ -530,6 +560,8 @@ function AdminAttendancePageContent() {
       }
 
       setSuccessMessage('Presenças concluídas com sucesso.');
+      addToast('Presenças concluídas com sucesso.', 'success');
+      clearSelectedSession();
       await loadAttendance();
     } catch (saveError) {
       setFormError(
@@ -613,11 +645,11 @@ function AdminAttendancePageContent() {
       }
 
       cancelEditing();
-      setSuccessMessage(
-        editing.attendanceId
-          ? 'Presença atualizada com sucesso.'
-          : 'Presença criada com sucesso.',
-      );
+      const successText = editing.attendanceId
+        ? 'Presença atualizada com sucesso.'
+        : 'Presença criada com sucesso.';
+      setSuccessMessage(successText);
+      addToast(successText, 'success');
       await loadAttendance();
     } catch (saveError) {
       setFormError(
@@ -656,6 +688,7 @@ function AdminAttendancePageContent() {
         },
       );
       setSuccessMessage('Presença removida com sucesso.');
+      addToast('Presença removida com sucesso.', 'success');
       await loadAttendance();
     } catch (deleteError) {
       setFormError(
@@ -839,314 +872,352 @@ function AdminAttendancePageContent() {
                           return (
                             <Button
                               key={session.id}
-                              asChild
+                              type="button"
                               variant={active ? 'default' : 'secondary'}
                               size="sm"
+                              onClick={() =>
+                                handleSessionPickerToggle(event.id, session.id)
+                              }
                             >
-                              <Link
-                                href={buildAttendanceHref(
-                                  event.id,
-                                  session.id,
-                                  attendanceFilterParams,
-                                )}
-                              >
-                                {formatDateOnlyUTC(session.sessionDate)} ·{' '}
-                                {session.startTime} às {session.endTime} ·{' '}
-                                {session.room ?? 'Sem sala'}
-                              </Link>
+                              {formatDateOnlyUTC(session.sessionDate)} ·{' '}
+                              {session.startTime} às {session.endTime} ·{' '}
+                              {session.room ?? 'Sem sala'}
                             </Button>
                           );
                         })
                       )}
                     </div>
+
+                    {selectedSessionContext?.event.id === event.id ? (
+                      <div className="mt-4 rounded-3xl border border-slate-200 bg-white p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className="font-semibold text-academy-text">
+                              Lista de participantes da sessão
+                            </p>
+                            <p className="text-slate-500">
+                              {selectedSessionLabel
+                                ? `${selectedSessionLabel.eventTitle} · ${selectedSessionLabel.sessionDate} · ${selectedSessionLabel.startTime} às ${selectedSessionLabel.endTime} · ${selectedSessionLabel.room}`
+                                : 'Sessão selecionada'}
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              onClick={handleConcludeAttendances}
+                              disabled={saving}
+                            >
+                              <Plus className="h-4 w-4" />
+                              {saving ? 'Concluindo...' : 'Concluir presenças'}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              size="sm"
+                              onClick={clearSelectedSession}
+                            >
+                              Fechar lista
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 grid gap-3">
+                          <label className="grid gap-2 text-sm font-medium text-slate-700">
+                            Buscar participante
+                            <Input
+                              value={participantSearchTerm}
+                              onChange={(event) =>
+                                setParticipantSearchTerm(event.target.value)
+                              }
+                              placeholder="Nome, e-mail ou observação"
+                            />
+                          </label>
+
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              variant={
+                                presenceFilter === 'all'
+                                  ? 'default'
+                                  : 'secondary'
+                              }
+                              size="sm"
+                              onClick={() => setPresenceFilter('all')}
+                            >
+                              Todos
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={
+                                presenceFilter === 'present'
+                                  ? 'default'
+                                  : 'secondary'
+                              }
+                              size="sm"
+                              onClick={() => setPresenceFilter('present')}
+                            >
+                              Presentes
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={
+                                presenceFilter === 'pending'
+                                  ? 'default'
+                                  : 'secondary'
+                              }
+                              size="sm"
+                              onClick={() => setPresenceFilter('pending')}
+                            >
+                              Pendentes
+                            </Button>
+
+                            {hasActiveParticipantFilters ? (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setParticipantSearchTerm('');
+                                  setPresenceFilter('all');
+                                }}
+                              >
+                                Limpar filtros
+                              </Button>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        {filteredSelectedSessionRows.length === 0 ? (
+                          <p className="mt-4 text-slate-500">
+                            Nenhum participante encontrado com os filtros
+                            atuais.
+                          </p>
+                        ) : (
+                          <div className="mt-4 grid gap-3">
+                            {filteredSelectedSessionRows.map(
+                              ({ registration, user, attendance }) => {
+                                const checked =
+                                  presenceDrafts[registration.id] ?? false;
+
+                                return (
+                                  <div
+                                    key={registration.id}
+                                    className="flex items-start gap-3 rounded-2xl border border-slate-200 p-4"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      className="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                                      checked={checked}
+                                      onChange={(event) =>
+                                        handleTogglePresenceDraft(
+                                          registration.id,
+                                          event.target.checked,
+                                        )
+                                      }
+                                    />
+
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                                        <div>
+                                          <p className="font-semibold text-academy-text">
+                                            {user?.name ??
+                                              registration.participantId}
+                                          </p>
+                                          <p className="text-slate-500">
+                                            {user?.email ??
+                                              'E-mail não informado'}
+                                          </p>
+                                        </div>
+                                        <Badge
+                                          tone={checked ? 'success' : 'neutral'}
+                                        >
+                                          {checked ? 'Presente' : 'Pendente'}
+                                        </Badge>
+                                      </div>
+
+                                      {attendance?.notes ? (
+                                        <p className="mt-2 text-slate-500">
+                                          {attendance.notes}
+                                        </p>
+                                      ) : null}
+
+                                      <div className="mt-3 flex flex-wrap gap-2">
+                                        <Button
+                                          type="button"
+                                          variant="secondary"
+                                          size="sm"
+                                          onClick={() =>
+                                            handleTogglePresenceDraft(
+                                              registration.id,
+                                              !checked,
+                                            )
+                                          }
+                                        >
+                                          <Pencil className="h-4 w-4" />
+                                          {checked ? 'Desmarcar' : 'Marcar'}
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() =>
+                                            startEditing(
+                                              registration.id,
+                                              selectedSessionContext.session.id,
+                                            )
+                                          }
+                                        >
+                                          Ajuste manual
+                                        </Button>
+                                      </div>
+
+                                      {editing?.registrationId ===
+                                      registration.id ? (
+                                        <form
+                                          className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-4"
+                                          onSubmit={handleSaveAttendance}
+                                        >
+                                          <div className="mb-4 flex items-center justify-between gap-3">
+                                            <div>
+                                              <p className="font-semibold text-academy-text">
+                                                Ajuste manual deste participante
+                                              </p>
+                                              <p className="text-slate-500">
+                                                {user?.name ??
+                                                  registration.participantId}
+                                                {user?.email
+                                                  ? ` · ${user.email}`
+                                                  : ''}
+                                              </p>
+                                            </div>
+                                            <Button
+                                              type="button"
+                                              variant="ghost"
+                                              onClick={cancelEditing}
+                                            >
+                                              Cancelar
+                                            </Button>
+                                          </div>
+
+                                          <div className="grid gap-4 sm:grid-cols-2">
+                                            <label className="grid gap-2 text-sm font-medium text-slate-700">
+                                              Presença
+                                              <select
+                                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
+                                                value={
+                                                  editing.present
+                                                    ? 'true'
+                                                    : 'false'
+                                                }
+                                                onChange={(event) =>
+                                                  setEditing({
+                                                    ...editing,
+                                                    present:
+                                                      event.target.value ===
+                                                      'true',
+                                                  })
+                                                }
+                                              >
+                                                <option value="true">
+                                                  Presente
+                                                </option>
+                                                <option value="false">
+                                                  Ausente
+                                                </option>
+                                              </select>
+                                            </label>
+                                            <label className="grid gap-2 text-sm font-medium text-slate-700">
+                                              Check-in
+                                              <Input
+                                                type="datetime-local"
+                                                value={editing.checkInAt}
+                                                onChange={(event) =>
+                                                  setEditing({
+                                                    ...editing,
+                                                    checkInAt:
+                                                      event.target.value,
+                                                  })
+                                                }
+                                              />
+                                            </label>
+                                            <label className="grid gap-2 text-sm font-medium text-slate-700">
+                                              Check-out
+                                              <Input
+                                                type="datetime-local"
+                                                value={editing.checkOutAt}
+                                                onChange={(event) =>
+                                                  setEditing({
+                                                    ...editing,
+                                                    checkOutAt:
+                                                      event.target.value,
+                                                  })
+                                                }
+                                              />
+                                            </label>
+                                            <label className="grid gap-2 text-sm font-medium text-slate-700 sm:col-span-2">
+                                              Observações
+                                              <Input
+                                                value={editing.notes}
+                                                onChange={(event) =>
+                                                  setEditing({
+                                                    ...editing,
+                                                    notes: event.target.value,
+                                                  })
+                                                }
+                                              />
+                                            </label>
+                                          </div>
+
+                                          {formError ? (
+                                            <p
+                                              className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-rose-700"
+                                              role="alert"
+                                            >
+                                              {formError}
+                                            </p>
+                                          ) : null}
+
+                                          <div className="mt-4 flex flex-wrap gap-3">
+                                            <Button
+                                              type="submit"
+                                              disabled={saving}
+                                            >
+                                              <Plus className="h-4 w-4" />
+                                              {saving
+                                                ? 'Salvando...'
+                                                : editing.attendanceId
+                                                  ? 'Atualizar presença'
+                                                  : 'Criar presença'}
+                                            </Button>
+                                          </div>
+                                        </form>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                );
+                              },
+                            )}
+                          </div>
+                        )}
+
+                        {formError ? (
+                          <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-rose-700">
+                            {formError}
+                          </p>
+                        ) : null}
+
+                        {successMessage ? (
+                          <p className="mt-4 rounded-2xl bg-emerald-50 px-4 py-3 text-emerald-700">
+                            {successMessage}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : null}
                   </div>
                 ))}
               </div>
             )}
           </div>
-
-          {selectedSessionLabel ? (
-            <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800">
-              <p className="font-semibold">Sessão em atendimento</p>
-              <p>
-                {selectedSessionLabel.eventTitle} ·{' '}
-                {selectedSessionLabel.sessionDate} ·{' '}
-                {selectedSessionLabel.startTime} às{' '}
-                {selectedSessionLabel.endTime} · {selectedSessionLabel.room}
-              </p>
-            </div>
-          ) : null}
-
-          {selectedSessionContext ? (
-            <div className="rounded-3xl border border-slate-200 bg-white p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-base font-semibold text-academy-text">
-                    Lista de participantes da sessão
-                  </p>
-                  <p className="text-slate-500">
-                    {selectedSessionRows.length} participante
-                    {selectedSessionRows.length === 1 ? '' : 's'} carregado
-                    {selectedSessionRows.length === 1 ? '' : 's'}.
-                  </p>
-                </div>
-                <Button onClick={handleConcludeAttendances} disabled={saving}>
-                  <Plus className="h-4 w-4" />
-                  {saving ? 'Concluindo...' : 'Concluir presenças'}
-                </Button>
-              </div>
-
-              <div className="mt-4 grid gap-3">
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Buscar participante
-                  <Input
-                    value={participantSearchTerm}
-                    onChange={(event) =>
-                      setParticipantSearchTerm(event.target.value)
-                    }
-                    placeholder="Nome, e-mail ou observação"
-                  />
-                </label>
-
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant={presenceFilter === 'all' ? 'default' : 'secondary'}
-                    size="sm"
-                    onClick={() => setPresenceFilter('all')}
-                  >
-                    Todos
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={
-                      presenceFilter === 'present' ? 'default' : 'secondary'
-                    }
-                    size="sm"
-                    onClick={() => setPresenceFilter('present')}
-                  >
-                    Presentes
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={
-                      presenceFilter === 'pending' ? 'default' : 'secondary'
-                    }
-                    size="sm"
-                    onClick={() => setPresenceFilter('pending')}
-                  >
-                    Pendentes
-                  </Button>
-
-                  {hasActiveParticipantFilters ? (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setParticipantSearchTerm('');
-                        setPresenceFilter('all');
-                      }}
-                    >
-                      Limpar filtros
-                    </Button>
-                  ) : null}
-                </div>
-              </div>
-
-              {filteredSelectedSessionRows.length === 0 ? (
-                <p className="mt-4 text-slate-500">
-                  Nenhum participante encontrado com os filtros atuais.
-                </p>
-              ) : (
-                <div className="mt-4 grid gap-3">
-                  {filteredSelectedSessionRows.map(
-                    ({ registration, user, attendance }) => {
-                      const checked = presenceDrafts[registration.id] ?? false;
-
-                      return (
-                        <div
-                          key={registration.id}
-                          className="flex items-start gap-3 rounded-2xl border border-slate-200 p-4"
-                        >
-                          <input
-                            type="checkbox"
-                            className="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                            checked={checked}
-                            onChange={(event) =>
-                              handleTogglePresenceDraft(
-                                registration.id,
-                                event.target.checked,
-                              )
-                            }
-                          />
-
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                              <div>
-                                <p className="font-semibold text-academy-text">
-                                  {user?.name ?? registration.participantId}
-                                </p>
-                                <p className="text-slate-500">
-                                  {user?.email ?? 'E-mail não informado'}
-                                </p>
-                              </div>
-                              <Badge tone={checked ? 'success' : 'neutral'}>
-                                {checked ? 'Presente' : 'Pendente'}
-                              </Badge>
-                            </div>
-
-                            {attendance?.notes ? (
-                              <p className="mt-2 text-slate-500">
-                                {attendance.notes}
-                              </p>
-                            ) : null}
-
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                onClick={() =>
-                                  handleTogglePresenceDraft(
-                                    registration.id,
-                                    !checked,
-                                  )
-                                }
-                              >
-                                <Pencil className="h-4 w-4" />
-                                {checked ? 'Desmarcar' : 'Marcar'}
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  startEditing(
-                                    registration.id,
-                                    selectedSessionContext.session.id,
-                                  )
-                                }
-                              >
-                                Ajuste manual
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    },
-                  )}
-                </div>
-              )}
-
-              {formError ? (
-                <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-rose-700">
-                  {formError}
-                </p>
-              ) : null}
-
-              {successMessage ? (
-                <p className="mt-4 rounded-2xl bg-emerald-50 px-4 py-3 text-emerald-700">
-                  {successMessage}
-                </p>
-              ) : null}
-            </div>
-          ) : (
-            <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-6 text-slate-500">
-              Selecione uma sessão acima para carregar a lista de participantes.
-            </div>
-          )}
-
-          {editing ? (
-            <form
-              className="rounded-3xl border border-slate-200 bg-white p-4"
-              onSubmit={handleSaveAttendance}
-            >
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-academy-text">
-                    Ajuste manual
-                  </p>
-                  <p className="text-slate-500">
-                    {editing.attendanceId
-                      ? 'Correção de presença já registrada'
-                      : 'Criação manual de presença'}
-                  </p>
-                </div>
-                <Button type="button" variant="ghost" onClick={cancelEditing}>
-                  Cancelar
-                </Button>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Presença
-                  <select
-                    className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
-                    value={editing.present ? 'true' : 'false'}
-                    onChange={(event) =>
-                      setEditing({
-                        ...editing,
-                        present: event.target.value === 'true',
-                      })
-                    }
-                  >
-                    <option value="true">Presente</option>
-                    <option value="false">Ausente</option>
-                  </select>
-                </label>
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Check-in
-                  <Input
-                    type="datetime-local"
-                    value={editing.checkInAt}
-                    onChange={(event) =>
-                      setEditing({ ...editing, checkInAt: event.target.value })
-                    }
-                  />
-                </label>
-                <label className="grid gap-2 text-sm font-medium text-slate-700">
-                  Check-out
-                  <Input
-                    type="datetime-local"
-                    value={editing.checkOutAt}
-                    onChange={(event) =>
-                      setEditing({ ...editing, checkOutAt: event.target.value })
-                    }
-                  />
-                </label>
-                <label className="grid gap-2 text-sm font-medium text-slate-700 sm:col-span-2">
-                  Observações
-                  <Input
-                    value={editing.notes}
-                    onChange={(event) =>
-                      setEditing({ ...editing, notes: event.target.value })
-                    }
-                  />
-                </label>
-              </div>
-
-              {formError ? (
-                <p
-                  className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-rose-700"
-                  role="alert"
-                >
-                  {formError}
-                </p>
-              ) : null}
-
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Button type="submit" disabled={saving}>
-                  <Plus className="h-4 w-4" />
-                  {saving
-                    ? 'Salvando...'
-                    : editing.attendanceId
-                      ? 'Atualizar presença'
-                      : 'Criar presença'}
-                </Button>
-              </div>
-            </form>
-          ) : null}
         </CardContent>
       </Card>
     </>

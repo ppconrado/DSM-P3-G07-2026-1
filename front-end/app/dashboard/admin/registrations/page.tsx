@@ -1,7 +1,8 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -70,50 +71,47 @@ function AdminRegistrationsPageContent() {
   const [dateTo, setDateTo] = useState(() => searchParams.get('to') ?? '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [savingRegistration, setSavingRegistration] = useState(false);
+  const [editingRegistrationId, setEditingRegistrationId] = useState<
+    string | null
+  >(null);
+  const [editingStatus, setEditingStatus] =
+    useState<RegistrationRecord['status']>('ATIVO');
+  const [editingApprovedForCertificate, setEditingApprovedForCertificate] =
+    useState(false);
+
+  const loadData = useCallback(async () => {
+    try {
+      const [registrationList, userList, eventList] = await Promise.all([
+        apiFetch<RegistrationRecord[]>('/registrations'),
+        apiFetch<UserRecord[]>('/users?includeInactive=true'),
+        apiFetch<EventRecord[]>('/events'),
+      ]);
+
+      setRegistrations(registrationList);
+      setUsers(userList);
+      setEvents(eventList);
+    } catch (loadError) {
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Erro ao carregar inscrições.',
+      );
+      addToast(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Erro ao carregar inscrições.',
+        'error',
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [addToast]);
 
   useEffect(() => {
-    let active = true;
-
-    async function loadData() {
-      try {
-        const [registrationList, userList, eventList] = await Promise.all([
-          apiFetch<RegistrationRecord[]>('/registrations'),
-          apiFetch<UserRecord[]>('/users?includeInactive=true'),
-          apiFetch<EventRecord[]>('/events'),
-        ]);
-
-        if (!active) return;
-
-        setRegistrations(registrationList);
-        setUsers(userList);
-        setEvents(eventList);
-      } catch (loadError) {
-        if (!active) return;
-
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : 'Erro ao carregar inscrições.',
-        );
-        addToast(
-          loadError instanceof Error
-            ? loadError.message
-            : 'Erro ao carregar inscrições.',
-          'error',
-        );
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadData();
-
-    return () => {
-      active = false;
-    };
-  }, [addToast]);
+    void loadData();
+  }, [loadData]);
 
   const registrationsWithRelations = useMemo(() => {
     const usersById = new Map(users.map((user) => [user.id, user]));
@@ -132,6 +130,93 @@ function AdminRegistrationsPageContent() {
       );
   }, [events, registrations, users]);
 
+  const editingRegistration = useMemo(
+    () =>
+      registrationsWithRelations.find(
+        ({ registration }) => registration.id === editingRegistrationId,
+      ) ?? null,
+    [editingRegistrationId, registrationsWithRelations],
+  );
+
+  function beginEditRegistration(registration: RegistrationRecord) {
+    setEditingRegistrationId(registration.id);
+    setEditingStatus(registration.status);
+    setEditingApprovedForCertificate(registration.approvedForCertificate);
+    setActionError(null);
+  }
+
+  function cancelRegistrationEdit() {
+    setEditingRegistrationId(null);
+    setActionError(null);
+  }
+
+  async function handleSaveRegistration(
+    event: React.FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+
+    if (!editingRegistrationId) {
+      return;
+    }
+
+    setSavingRegistration(true);
+    setActionError(null);
+
+    try {
+      await apiFetch(`/registrations/${editingRegistrationId}`, {
+        method: 'PUT',
+        json: {
+          status: editingStatus,
+          approvedForCertificate: editingApprovedForCertificate,
+        },
+      });
+
+      cancelRegistrationEdit();
+      addToast('Inscrição atualizada com sucesso.', 'success');
+      await loadData();
+    } catch (saveError) {
+      const message =
+        saveError instanceof Error
+          ? saveError.message
+          : 'Erro ao atualizar inscrição.';
+      setActionError(message);
+      addToast(message, 'error');
+    } finally {
+      setSavingRegistration(false);
+    }
+  }
+
+  async function handleDeleteRegistration(registration: RegistrationRecord) {
+    setActionError(null);
+
+    if (
+      !window.confirm(
+        `Excluir a inscrição de ${registration.participantId} no evento ${registration.eventId}?`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await apiFetch(`/registrations/${registration.id}`, {
+        method: 'DELETE',
+      });
+
+      if (editingRegistrationId === registration.id) {
+        cancelRegistrationEdit();
+      }
+
+      addToast('Inscrição excluída com sucesso.', 'success');
+      await loadData();
+    } catch (deleteError) {
+      const message =
+        deleteError instanceof Error
+          ? deleteError.message
+          : 'Erro ao excluir inscrição.';
+      setActionError(message);
+      addToast(message, 'error');
+    }
+  }
   const filteredRegistrations = useMemo(() => {
     const normalizedSearchTerm = normalizeSearchText(searchTerm.trim());
 
@@ -413,36 +498,134 @@ function AdminRegistrationsPageContent() {
               {error}
             </p>
           ) : null}
+          {actionError && !editingRegistration ? (
+            <p className="rounded-2xl bg-rose-50 px-4 py-3 text-rose-700">
+              {actionError}
+            </p>
+          ) : null}
 
           {!loading && !error && filteredRegistrations.length === 0 ? (
             <p>Nenhuma inscrição encontrada.</p>
           ) : null}
 
           {filteredRegistrations.map(({ registration, user, event }) => (
-            <div
-              key={registration.id}
-              className="flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div>
-                <p className="font-semibold text-academy-text">
-                  {user?.name ?? registration.participantId} ·{' '}
-                  {event?.title ?? registration.eventId}
-                </p>
-                <p className="mt-1 text-slate-600">
-                  Inscrição em{' '}
-                  {formatDateOnlyUTC(registration.registrationDate)} · Presença{' '}
-                  {registration.attendancePercent.toFixed(0)}%
-                </p>
-                <p className="mt-1 text-xs text-slate-500">
-                  Certificado:{' '}
-                  {registration.approvedForCertificate
-                    ? 'aprovado'
-                    : 'pendente'}
-                </p>
+            <div key={registration.id} className="rounded-2xl bg-slate-50 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="font-semibold text-academy-text">
+                    {user?.name ?? registration.participantId} ·{' '}
+                    {event?.title ?? registration.eventId}
+                  </p>
+                  <p className="mt-1 text-slate-600">
+                    Inscrição em{' '}
+                    {formatDateOnlyUTC(registration.registrationDate)} ·
+                    Presença {registration.attendancePercent.toFixed(0)}%
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Certificado:{' '}
+                    {registration.approvedForCertificate
+                      ? 'aprovado'
+                      : 'pendente'}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge tone={statusTone(registration.status)}>
+                    {registration.status}
+                  </Badge>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => beginEditRegistration(registration)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Editar
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteRegistration(registration)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Excluir
+                  </Button>
+                </div>
               </div>
-              <Badge tone={statusTone(registration.status)}>
-                {registration.status}
-              </Badge>
+
+              {editingRegistrationId === registration.id ? (
+                <form
+                  className="mt-4 rounded-3xl border border-slate-200 bg-white p-4"
+                  onSubmit={handleSaveRegistration}
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-academy-text">
+                        Editar inscrição
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {user?.name ?? registration.participantId} ·{' '}
+                        {event?.title ?? 'Evento'}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={cancelRegistrationEdit}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      Status
+                      <select
+                        className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
+                        value={editingStatus}
+                        onChange={(event) =>
+                          setEditingStatus(
+                            event.target.value as RegistrationRecord['status'],
+                          )
+                        }
+                      >
+                        <option value="ATIVO">ATIVO</option>
+                        <option value="CANCELADO">CANCELADO</option>
+                        <option value="CONCLUIDO">CONCLUIDO</option>
+                      </select>
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-medium text-slate-700">
+                      Certificado
+                      <select
+                        className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
+                        value={editingApprovedForCertificate ? 'yes' : 'no'}
+                        onChange={(event) =>
+                          setEditingApprovedForCertificate(
+                            event.target.value === 'yes',
+                          )
+                        }
+                      >
+                        <option value="no">Pendente</option>
+                        <option value="yes">Aprovado</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  {actionError ? (
+                    <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-rose-700">
+                      {actionError}
+                    </p>
+                  ) : null}
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button type="submit" disabled={savingRegistration}>
+                      {savingRegistration ? 'Salvando...' : 'Salvar alterações'}
+                    </Button>
+                  </div>
+                </form>
+              ) : null}
             </div>
           ))}
         </CardContent>
