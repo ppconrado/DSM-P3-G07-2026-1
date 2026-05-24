@@ -23,6 +23,7 @@ export type EventRecord = {
   status: 'CRIANDO' | 'ATIVA' | 'ENCERRADA' | 'CANCELADA';
   certificateRequiredPercent?: number;
   speakerIds?: string[];
+  createdAt?: string;
 };
 
 export type RegistrationRecord = {

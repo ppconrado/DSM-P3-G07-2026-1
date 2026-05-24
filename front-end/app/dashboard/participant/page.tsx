@@ -159,7 +159,18 @@ export default function ParticipantDashboardPage() {
     [events],
   );
 
-  const nextEvent = recentEvents[0];
+  const latestCreatedEvent = useMemo(
+    () =>
+      [...events]
+        .filter((event) => event.status === 'ATIVA')
+        .sort((left, right) => {
+          const leftCreatedAt = new Date(left.createdAt ?? 0).getTime();
+          const rightCreatedAt = new Date(right.createdAt ?? 0).getTime();
+
+          return rightCreatedAt - leftCreatedAt;
+        })[0],
+    [events],
+  );
 
   return (
     <div className="space-y-8">
@@ -183,15 +194,15 @@ export default function ParticipantDashboardPage() {
 
           <div className="rounded-3xl border border-white/10 bg-white/10 px-5 py-4 backdrop-blur">
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/70">
-              Próximo evento
+              Novo lançamento
             </p>
             <p className="mt-2 text-lg font-semibold text-white">
-              {nextEvent?.title ?? 'Nenhum evento ativo'}
+              {latestCreatedEvent?.title ?? 'Nenhum lançamento ativo'}
             </p>
             <p className="mt-1 text-sm text-white/70">
-              {nextEvent
-                ? `${formatDateOnlyUTC(nextEvent.startDate)} · ${nextEvent.location}`
-                : 'Quando houver um evento ativo, ele aparecerá aqui.'}
+              {latestCreatedEvent
+                ? `${formatDateOnlyUTC(latestCreatedEvent.startDate)} · ${latestCreatedEvent.location}`
+                : 'Quando houver um lançamento ativo, ele aparecerá aqui.'}
             </p>
           </div>
         </div>
