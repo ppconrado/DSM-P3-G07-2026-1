@@ -358,7 +358,7 @@ function AdminEventsPageContent() {
   ];
 
   return (
-    <>
+    <div className="grid gap-6">
       <Card>
         <CardHeader>
           <CardTitle>
@@ -692,7 +692,7 @@ function AdminEventsPageContent() {
           ))}
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }
 

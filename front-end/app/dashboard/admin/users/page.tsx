@@ -282,7 +282,7 @@ function AdminUsersPageContent() {
   }, [pathname, router, searchParams, usersFilterParams]);
 
   return (
-    <>
+    <div className="grid gap-6">
       <Card>
         <CardHeader>
           <CardTitle>
@@ -512,7 +512,7 @@ function AdminUsersPageContent() {
           ))}
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }
 
