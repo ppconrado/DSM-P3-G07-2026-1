@@ -114,9 +114,7 @@ export default function ParticipantProfilePage() {
       <Card>
         <CardHeader>
           <CardTitle>Dados do perfil</CardTitle>
-          <CardDescription>
-            Campos principais do usuário autenticado pela sessão.
-          </CardDescription>
+          <CardDescription>Atualize seus dados cadastrais.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-slate-700">
           {loading ? <p>Carregando perfil...</p> : null}
@@ -173,9 +171,7 @@ export default function ParticipantProfilePage() {
                 </label>
 
                 <div className="space-y-2 text-slate-600">
-                  <p>Status: {user.isActive ? 'ativo' : 'inativo'}</p>
-                  <p>Curso vinculado: conforme cadastro institucional</p>
-                  <p>Senha: alteração protegida pelo back-end</p>
+                  <p>Status: {user.isActive ? 'ATIVO' : 'INATIVO'}</p>
                 </div>
 
                 {saveError ? (

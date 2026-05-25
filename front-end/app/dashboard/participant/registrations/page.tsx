@@ -333,7 +333,7 @@ function ParticipantRegistrationsPageContent() {
         <CardHeader>
           <CardTitle>Inscrições</CardTitle>
           <CardDescription>
-            Fluxo para acompanhar eventos registrados e situação atual.
+            Acompanhe suas inscrições, presenças e status dos certificados.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-sm text-slate-600">

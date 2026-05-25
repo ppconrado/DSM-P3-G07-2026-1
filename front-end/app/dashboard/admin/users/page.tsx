@@ -100,6 +100,7 @@ function AdminUsersPageContent() {
     setPassword('');
     setFormError(null);
     setSuccessMessage(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -284,11 +285,132 @@ function AdminUsersPageContent() {
     <>
       <Card>
         <CardHeader>
+          <CardTitle>
+            {editingUserId ? 'Editar usuário' : 'Cadastrar usuário'}
+          </CardTitle>
+          <CardDescription>
+            {editingUserId
+              ? 'Atualize os dados do usuário selecionado.'
+              : 'Preencha os dados para criar um novo usuário.'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="grid gap-4" onSubmit={handleSubmit}>
+            {editingUserId ? (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <div>
+                  <p className="text-sm font-semibold text-academy-text">
+                    Edição em andamento
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {name || 'Usuário selecionado'} · {email || 'sem e-mail'}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetForm}
+                >
+                  Cancelar edição
+                </Button>
+              </div>
+            ) : null}
+
+            <div className="grid gap-4">
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                Nome
+                <Input
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  required
+                />
+              </label>
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                E-mail
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
+              </label>
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                Telefone
+                <Input
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                />
+              </label>
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                Papel
+                <select
+                  className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
+                  value={role}
+                  onChange={(event) =>
+                    setRole(event.target.value as UserRecord['role'])
+                  }
+                >
+                  <option value="PARTICIPANTE">PARTICIPANTE</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+              </label>
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                Nova senha {editingUserId ? '(opcional)' : '(obrigatória)'}
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required={!editingUserId}
+                />
+              </label>
+
+              {formError ? (
+                <p
+                  className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                  role="alert"
+                >
+                  {formError}
+                </p>
+              ) : null}
+
+              {successMessage ? (
+                <p
+                  className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+                  role="status"
+                  aria-live="polite"
+                >
+                  {successMessage}
+                </p>
+              ) : null}
+
+              <div className="flex flex-wrap gap-3">
+                <Button type="submit" disabled={saving}>
+                  <Plus className="h-4 w-4" />
+                  {saving
+                    ? 'Salvando...'
+                    : editingUserId
+                      ? 'Atualizar usuário'
+                      : 'Criar usuário'}
+                </Button>
+                {editingUserId ? (
+                  <Button type="button" variant="secondary" onClick={resetForm}>
+                    Cancelar
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <div>
             <CardTitle>Lista de usuários</CardTitle>
             <CardDescription>
-              Separei os usuários por status para facilitar a gestão e a
-              reativação.
+              Listagem de usuários ativos e inativos. Desativar e reativar
+              usuários.
             </CardDescription>
           </div>
         </CardHeader>
@@ -386,104 +508,6 @@ function AdminUsersPageContent() {
                   </Button>
                 </div>
               </div>
-
-              {editingUserId === user.id ? (
-                <form
-                  className="mt-4 rounded-3xl border border-slate-200 bg-white p-4"
-                  onSubmit={handleSubmit}
-                >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <CardTitle className="text-sm">Editar usuário</CardTitle>
-                      <p className="text-xs text-slate-500">
-                        {user.name} · {user.email}
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      onClick={resetForm}
-                    >
-                      Cancelar
-                    </Button>
-                  </div>
-
-                  <div className="mt-4 grid gap-4">
-                    <label className="grid gap-2 text-sm font-medium text-slate-700">
-                      Nome
-                      <Input
-                        value={name}
-                        onChange={(event) => setName(event.target.value)}
-                        required
-                      />
-                    </label>
-                    <label className="grid gap-2 text-sm font-medium text-slate-700">
-                      E-mail
-                      <Input
-                        type="email"
-                        value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                        required
-                      />
-                    </label>
-                    <label className="grid gap-2 text-sm font-medium text-slate-700">
-                      Telefone
-                      <Input
-                        value={phone}
-                        onChange={(event) => setPhone(event.target.value)}
-                      />
-                    </label>
-                    <label className="grid gap-2 text-sm font-medium text-slate-700">
-                      Papel
-                      <select
-                        className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-academy-text shadow-sm"
-                        value={role}
-                        onChange={(event) =>
-                          setRole(event.target.value as UserRecord['role'])
-                        }
-                      >
-                        <option value="PARTICIPANTE">PARTICIPANTE</option>
-                        <option value="ADMIN">ADMIN</option>
-                      </select>
-                    </label>
-                    <label className="grid gap-2 text-sm font-medium text-slate-700">
-                      Nova senha (opcional)
-                      <Input
-                        type="password"
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                      />
-                    </label>
-
-                    {formError ? (
-                      <p
-                        className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
-                        role="alert"
-                      >
-                        {formError}
-                      </p>
-                    ) : null}
-
-                    {successMessage ? (
-                      <p
-                        className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
-                        role="status"
-                        aria-live="polite"
-                      >
-                        {successMessage}
-                      </p>
-                    ) : null}
-
-                    <div className="flex flex-wrap gap-3">
-                      <Button type="submit" disabled={saving}>
-                        <Plus className="h-4 w-4" />
-                        {saving ? 'Salvando...' : 'Atualizar usuário'}
-                      </Button>
-                    </div>
-                  </div>
-                </form>
-              ) : null}
             </div>
           ))}
         </CardContent>

@@ -713,8 +713,8 @@ function AdminAttendancePageContent() {
             <div>
               <CardTitle>Marcação de presença</CardTitle>
               <CardDescription>
-                Fluxo de marcação para cálculo automático do percentual mínimo
-                de 75%.
+                Gerencie a marcação de presenças, para cálculo automático do
+                percentual mínimo de participação.
               </CardDescription>
             </div>
           </div>
@@ -734,8 +734,8 @@ function AdminAttendancePageContent() {
                   Selecione a sessão
                 </p>
                 <p className="text-slate-500">
-                  Toque na sessão do evento e marque os presentes com um único
-                  fluxo.
+                  Clique na sessão do evento desejado. Marque os presentes e
+                  aperte CONCLUIR PRESENÇAS.
                 </p>
               </div>
             </div>
@@ -851,8 +851,8 @@ function AdminAttendancePageContent() {
                           {event.title}
                         </p>
                         <p className="text-slate-500">
-                          {sessions.length} sessão
-                          {sessions.length === 1 ? '' : 'ões'}
+                          {sessions.length}{' '}
+                          {sessions.length === 1 ? 'sessão' : 'sessões'}
                         </p>
                       </div>
                       <Badge tone="neutral">Escolha uma sessão</Badge>

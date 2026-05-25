@@ -358,7 +358,8 @@ function AdminRegistrationsPageContent() {
         <CardHeader>
           <CardTitle>Inscrições recentes</CardTitle>
           <CardDescription>
-            Filtro por status e eventos com lotação em tempo real.
+            Filtros por status de eventos e certificados. Percentual de presença
+            em tempo real.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-slate-700">

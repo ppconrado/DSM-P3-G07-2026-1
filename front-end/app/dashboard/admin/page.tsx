@@ -213,7 +213,7 @@ export default function AdminDashboardPage() {
             <div>
               <CardTitle>Operações administrativas</CardTitle>
               <CardDescription>
-                Fluxos priorizados para o primeiro ciclo do front-end.
+                Tarefas de gestão para administradores do sistema.
               </CardDescription>
             </div>
             <Badge tone="success">ADMIN</Badge>
@@ -300,7 +300,7 @@ export default function AdminDashboardPage() {
           <CardHeader>
             <CardTitle>Eventos recentes</CardTitle>
             <CardDescription>
-              Listagem inicial para CRUD e filtros.
+              Listagem dos eventos mais recentes.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-700">
@@ -330,7 +330,7 @@ export default function AdminDashboardPage() {
           <CardHeader>
             <CardTitle>Palestrantes vinculados</CardTitle>
             <CardDescription>
-              Integração entre speakers e eventos.
+              Palestrantes com mais eventos associados.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-700">
@@ -349,7 +349,7 @@ export default function AdminDashboardPage() {
           <CardHeader>
             <CardTitle>Indicadores</CardTitle>
             <CardDescription>
-              Painel para evolução do dashboard.
+              Painel de indicadores do dashboard.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-700">

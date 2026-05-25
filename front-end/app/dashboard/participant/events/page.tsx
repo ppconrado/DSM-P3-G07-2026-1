@@ -16,6 +16,7 @@ import { formatDateOnlyUTC } from '@/lib/date';
 import { apiFetch } from '@/lib/api';
 import { fetchSession } from '@/lib/auth';
 import { useToast } from '@/components/ui/toast';
+import { useAutoHideMessage } from '@/lib/useAutoHideMessage';
 import type { EventRecord } from '@/lib/domain';
 
 function normalizeSearchText(value: string) {
@@ -63,19 +64,15 @@ function ParticipantEventsPageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [registeringFor, setRegisteringFor] = useState<string | null>(null);
+  const [registrationError, setRegistrationError] = useState<{
+    eventId: string;
+    message: string;
+  } | null>(null);
   const { addToast } = useToast();
 
-  useEffect(() => {
-    if (error !== 'Inscrição só permitida em eventos com status ATIVA.') {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setError(null);
-    }, 3000);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [error]);
+  useAutoHideMessage(registrationError?.message ?? null, () => {
+    setRegistrationError(null);
+  });
 
   useEffect(() => {
     let active = true;
@@ -138,6 +135,7 @@ function ParticipantEventsPageContent() {
   async function handleRegister(eventId: string) {
     setRegisteringFor(eventId);
     setError(null);
+    setRegistrationError(null);
     try {
       const session = await fetchSession();
       await apiFetch('/registrations', {
@@ -152,9 +150,13 @@ function ParticipantEventsPageContent() {
       // const updated = await apiFetch<EventRecord[]>('/events');
       // setEvents(updated);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Erro ao inscrever-se no evento.',
-      );
+      setRegistrationError({
+        eventId,
+        message:
+          err instanceof Error
+            ? err.message
+            : 'Erro ao inscrever-se no evento.',
+      });
     } finally {
       setRegisteringFor(null);
     }
@@ -283,7 +285,8 @@ function ParticipantEventsPageContent() {
         <CardHeader>
           <CardTitle>Eventos disponíveis</CardTitle>
           <CardDescription>
-            Base real da API para filtros por tipo, data e status.
+            Explore e Inscreva-se em eventos utilizando, filtros por tipo, data
+            e status.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -429,65 +432,78 @@ function ParticipantEventsPageContent() {
           {visibleEvents.map((event) => (
             <div
               key={event.id}
-              className="flex flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="space-y-3 rounded-2xl bg-slate-50 p-4"
             >
-              <div>
-                <p className="font-semibold text-academy-text">{event.title}</p>
-                <p className="mt-1 text-slate-500">
-                  {formatDateOnlyUTC(event.startDate)} até{' '}
-                  {formatDateOnlyUTC(event.endDate)} · {event.location} ·{' '}
-                  {event.type}
-                </p>
-                {event.description ? (
-                  <p className="mt-1 text-sm text-slate-600">
-                    {event.description}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="font-semibold text-academy-text">
+                    {event.title}
                   </p>
-                ) : null}
-                <p className="mt-2 text-sm text-slate-600">
-                  Capacidade: {event.capacity ?? '—'}
-                </p>
+                  <p className="mt-1 text-slate-500">
+                    {formatDateOnlyUTC(event.startDate)} até{' '}
+                    {formatDateOnlyUTC(event.endDate)} · {event.location} ·{' '}
+                    {event.type}
+                  </p>
+                  {event.description ? (
+                    <p className="mt-1 text-sm text-slate-600">
+                      {event.description}
+                    </p>
+                  ) : null}
+                  <p className="mt-2 text-sm text-slate-600">
+                    Capacidade: {event.capacity ?? '—'}
+                  </p>
 
-                {Array.isArray(event.speakerIds) &&
-                event.speakerIds.length > 0 ? (
-                  <div className="mt-2 space-y-1">
-                    <p className="text-sm font-medium">Palestrantes:</p>
-                    {event.speakerIds.map((sid) => {
-                      const sp = speakersMap[sid];
-                      if (!sp) return null;
-                      return (
-                        <div key={sid} className="text-sm text-slate-700">
-                          <div className="font-semibold">{sp.name}</div>
-                          <div className="text-xs">
-                            {sp.email} · {sp.institution ?? ''}
+                  {Array.isArray(event.speakerIds) &&
+                  event.speakerIds.length > 0 ? (
+                    <div className="mt-2 space-y-1">
+                      <p className="text-sm font-medium">Palestrantes:</p>
+                      {event.speakerIds.map((sid) => {
+                        const sp = speakersMap[sid];
+                        if (!sp) return null;
+                        return (
+                          <div key={sid} className="text-sm text-slate-700">
+                            <div className="font-semibold">{sp.name}</div>
+                            <div className="text-xs">
+                              {sp.email} · {sp.institution ?? ''}
+                            </div>
+                            {sp.bio ? (
+                              <div className="text-xs">{sp.bio}</div>
+                            ) : null}
                           </div>
-                          {sp.bio ? (
-                            <div className="text-xs">{sp.bio}</div>
-                          ) : null}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : null}
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge tone={statusTone(event.status)}>{event.status}</Badge>
+                  {registeredEventIds.has(event.id) ? (
+                    <Button size="sm" variant="default" disabled>
+                      Inscrito
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => handleRegister(event.id)}
+                      disabled={registeringFor !== null}
+                    >
+                      {registeringFor === event.id
+                        ? 'Inscrevendo...'
+                        : 'Inscrever'}
+                    </Button>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge tone={statusTone(event.status)}>{event.status}</Badge>
-                {registeredEventIds.has(event.id) ? (
-                  <Button size="sm" variant="default" disabled>
-                    Inscrito
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => handleRegister(event.id)}
-                    disabled={registeringFor !== null}
-                  >
-                    {registeringFor === event.id
-                      ? 'Inscrevendo...'
-                      : 'Inscrever'}
-                  </Button>
-                )}
-              </div>
+
+              {registrationError?.eventId === event.id ? (
+                <p
+                  className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                  aria-live="polite"
+                >
+                  {registrationError.message}
+                </p>
+              ) : null}
             </div>
           ))}
 
